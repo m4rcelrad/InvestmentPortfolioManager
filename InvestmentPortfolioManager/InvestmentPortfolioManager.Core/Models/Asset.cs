@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
@@ -23,8 +24,15 @@ namespace InvestmentPortfolioManager.Core.Models
         }
     }
 
-    public abstract class Asset : IComparable<Asset>, IAsset
+    public delegate void AssetPriceChangedHandler(string symbol, double newPrice, string message);
+
+    [XmlInclude(typeof(Stock))]
+    [XmlInclude(typeof(Bond))]
+    [XmlInclude(typeof(Cryptocurrency))]
+    public abstract class Asset : IAsset, IComparable<Asset>, ICloneable
     {
+        public event AssetPriceChangedHandler? OnPriceUpdate;
+
         private double quantity;
         private double currentPrice;
 
@@ -57,7 +65,17 @@ namespace InvestmentPortfolioManager.Core.Models
                     throw new InvalidPriceException("Price can't be lower than 0");
                 }
 
+                bool hasChanged = Math.Abs(currentPrice - value) > 0.0001;
+                double oldPrice = currentPrice;
                 currentPrice = value;
+
+                if (hasChanged && OnPriceUpdate != null)
+                {
+                    string movement = value > oldPrice ? "rose" : "dropped";
+                    string msg = $"Price {movement} by {Math.Abs(value - oldPrice):F2}";
+
+                    OnPriceUpdate.Invoke(AssetSymbol, currentPrice, msg);
+                }
             }
         }
         public double Volatility { get; set; }
@@ -102,5 +120,10 @@ namespace InvestmentPortfolioManager.Core.Models
         }
 
         public abstract void SimulatePriceChange(DateTime simulationDate);
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }

@@ -62,5 +62,11 @@ namespace InvestmentPortfolioManager.Core.Models
                 asset.SimulatePriceChange(simulationDate);
             }
         }
+
+        public List<Asset> FindAssets( Predicate<Asset> predicate)
+        {
+            var listTemp = assets.ToList();
+            return listTemp.FindAll(predicate); 
+        }
     }
 }

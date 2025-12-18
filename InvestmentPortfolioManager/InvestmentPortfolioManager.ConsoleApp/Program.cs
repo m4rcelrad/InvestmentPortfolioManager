@@ -3,6 +3,7 @@ using InvestmentPortfolioManager.Core.Exceptions;
 using InvestmentPortfolioManager.Core.Models;
 using InvestmentPortfolioManager.Core.Services;
 using System.Globalization;
+using System.Linq;
 
 namespace InvestmentPortfolioManager.ConsoleApp
 {
@@ -31,7 +32,6 @@ namespace InvestmentPortfolioManager.ConsoleApp
                 return;
             }
 
-
             try
             {
                 Console.WriteLine("[INFO] Adding initial assets...");
@@ -55,11 +55,33 @@ namespace InvestmentPortfolioManager.ConsoleApp
 
             Console.WriteLine($"\n[INITIAL STATE] Total Value: {portfolio.CalculateSum():c}");
 
+            Console.WriteLine("\n[DELEGATES] Attaching price listeners to Bitcoin (Multicast)...");
+
+            var btcAsset = portfolio.Assets.FirstOrDefault(a => a.AssetSymbol == "BTC");
+
+            if (btcAsset != null)
+            {
+
+                btcAsset.OnPriceUpdate += DisplayAlert;
+
+                btcAsset.OnPriceUpdate += LogSimulation;
+            }
+
             uint days = 10;
             DateTime simulationStart = DateTime.Today;
 
             Console.WriteLine($"\n[INFO] Starting {days}-day market simulation starting form {simulationStart:d}");
             SimulationStart(portfolio, simulationStart, days);
+
+            Console.WriteLine("\n[PREDICATES] Searching for high-value assets (> $1000)...");
+            Predicate<Asset> isExpensiveCriteria = asset => asset.CurrentPrice > 1000.0;
+
+            var expensiveAssets = portfolio.FindAssets(isExpensiveCriteria);
+
+            foreach (var asset in expensiveAssets)
+            {
+                Console.WriteLine($"   -> FOUND: {asset.AssetSymbol} worth {asset.CurrentPrice:C2}");
+            }
         }
 
         static void SimulationStart(InvestmentPortfolio portfolio, DateTime simulationStart, uint days)
@@ -74,6 +96,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
 
                 PrintDailyReport(portfolio, simulationDate, day);
 
+                Thread.Sleep(800);
             }
         }
 
@@ -95,6 +118,18 @@ namespace InvestmentPortfolioManager.ConsoleApp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"TOTAL VALUE: {portfolio.CalculateSum():c}");
             Console.ResetColor();
+        }
+
+        static void DisplayAlert(string symbol, double price, string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"   >>> [ALERT] {symbol} price event: {message}");
+            Console.ResetColor();
+        }
+
+        static void LogSimulation(string symbol, double price, string message)
+        {
+            Console.WriteLine($"   [LOG] Audit record: {symbol} @ {price:F2}");
         }
     }
 }
