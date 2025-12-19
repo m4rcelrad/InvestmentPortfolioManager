@@ -1,5 +1,6 @@
 ﻿using InvestmentPortfolioManager.Core.Exceptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
-    public class InvestmentPortfolio
+    public class InvestmentPortfolio : IEnumerable<Asset>
     {
         private readonly ObservableCollection<Asset> _assets = [];
         public ReadOnlyObservableCollection<Asset> Assets { get; }
@@ -93,6 +94,16 @@ namespace InvestmentPortfolioManager.Core.Models
         public IEnumerable<Asset> GetTopMovers(int count)
         {
             return _assets.OrderByDescending(a => (a.CurrentPrice - a.PurchasePrice) / a.PurchasePrice).Take(count);
+        }
+
+        public IEnumerator<Asset> GetEnumerator()
+        {
+            return _assets.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

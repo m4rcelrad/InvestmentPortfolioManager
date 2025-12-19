@@ -33,7 +33,7 @@ namespace InvestmentPortfolioManager.Core.Models
     [XmlInclude(typeof(Cryptocurrency))]
     [XmlInclude(typeof(RealEstate))]
     [XmlInclude(typeof(Commodity))]
-    public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged
+    public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged, IEquatable<Asset>
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -130,5 +130,23 @@ namespace InvestmentPortfolioManager.Core.Models
         public abstract void SimulatePriceChange(DateTime simulationDate);
 
         public object Clone() => this.MemberwiseClone();
+
+        public bool Equals(Asset? other)
+        {
+            if (other == null) return false;
+            return this.Asset_id == other.Asset_id;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Asset asset)
+                return Equals(asset);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Asset_id.GetHashCode();
+        }
     }
 }
