@@ -29,6 +29,7 @@ namespace InvestmentPortfolioManager.Core.Models
     [XmlInclude(typeof(Stock))]
     [XmlInclude(typeof(Bond))]
     [XmlInclude(typeof(Cryptocurrency))]
+    [XmlInclude(typeof(RealEstate))]
     public abstract class Asset : IAsset, IComparable<Asset>, ICloneable
     {
         public event AssetPriceChangedHandler? OnPriceUpdate;

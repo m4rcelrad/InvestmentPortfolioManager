@@ -13,4 +13,16 @@ namespace InvestmentPortfolioManager.Core.Enums
         High,
         ExtremelyHigh
     }
+
+    public enum UnitEnum
+    {
+        Ounce,
+        Barrel,
+        Ton,
+        Kilogram,
+        Gram,
+        Bushel,
+        Liter,
+        MWh
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using InvestmentPortfolioManager.Core;
+using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Exceptions;
 using InvestmentPortfolioManager.Core.Models;
 using InvestmentPortfolioManager.Core.Services;
@@ -47,6 +48,27 @@ namespace InvestmentPortfolioManager.ConsoleApp
                 var crypto = new Cryptocurrency("Bitcoin", "BTC", 0.5, 45000.0);
                 portfolio.AddNewAsset(crypto);
                 Console.WriteLine($"   + Added Crypto:{crypto.AssetSymbol} ({crypto.Quantity} units @ {crypto.PurchasePrice:c})");
+
+                var apartment = new RealEstate("Krakow Old Town", 1250000.0, "Szewska", "67", "Krakow", "31-009", "Poland", "67");
+                portfolio.AddNewAsset(apartment);
+                Console.WriteLine($"   + Added RealEstate: {apartment.AssetName} ({apartment.City}, {apartment.Street})");
+
+                var gold = new Commodity("Gold", "XAU", 10.0, 1950.0, UnitEnum.Ounce);
+                portfolio.AddNewAsset(gold);
+                Console.WriteLine($"   + Added Commodity: {gold.AssetName} ({gold.Quantity} {gold.Unit})");
+
+            }
+            catch (InvalidAddressException ex)
+            {
+                Console.WriteLine($"[ERROR] Invalid address data: {ex.Message}");
+            }
+            catch (InvalidZipCodeException ex)
+            {
+                Console.WriteLine($"[ERROR] ZipCode validation failed: {ex.Message}");
+            }
+            catch (InvalidUnitException ex)
+            {
+                Console.WriteLine($"[ERROR] Commodity unit error: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -66,7 +88,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
 
                 btcAsset.OnPriceUpdate += LogSimulation;
 
-                btcAsset.LowPriceThreshold = 60000.0;
+                btcAsset.LowPriceThreshold = 42000.0;
                 btcAsset.OnCriticalDrop += DisplayCriticalAlert;
                 Console.WriteLine($"   [CONFIG] Alert threshold for BTC set to {btcAsset.LowPriceThreshold:C2}");
             }

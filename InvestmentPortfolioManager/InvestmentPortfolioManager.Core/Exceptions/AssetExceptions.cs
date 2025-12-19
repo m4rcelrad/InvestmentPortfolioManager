@@ -16,4 +16,10 @@ namespace InvestmentPortfolioManager.Core.Exceptions
     public class AssetSymbolException(string message) : Exception(message) { }
 
     public class BondRateException(string message) : Exception(message) { }
+
+    public class InvalidAddressException(string message) : Exception(message) { }
+
+    public class InvalidZipCodeException(string message) : Exception(message) { }
+
+    public class InvalidUnitException(string message) : Exception(message) { }
 }
