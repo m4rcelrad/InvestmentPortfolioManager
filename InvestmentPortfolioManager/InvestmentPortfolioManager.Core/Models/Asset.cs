@@ -32,6 +32,7 @@ namespace InvestmentPortfolioManager.Core.Models
     public abstract class Asset : IAsset, IComparable<Asset>, ICloneable
     {
         public event AssetPriceChangedHandler? OnPriceUpdate;
+        public event AssetPriceChangedHandler? OnCriticalDrop;
 
         private double quantity;
         private double currentPrice;
@@ -72,14 +73,22 @@ namespace InvestmentPortfolioManager.Core.Models
                 if (hasChanged && OnPriceUpdate != null)
                 {
                     string movement = value > oldPrice ? "rose" : "dropped";
-                    string msg = $"Price {movement} by {Math.Abs(value - oldPrice):F2}";
+                    string msg = $"Price {movement} by {Math.Abs(value - oldPrice):c}";
 
                     OnPriceUpdate.Invoke(AssetSymbol, currentPrice, msg);
+                }
+
+                if (LowPriceThreshold.HasValue && currentPrice < LowPriceThreshold.Value)
+                {
+                    string alertMsg = $"CRITICAL WARNING: Price dropped below {LowPriceThreshold.Value:c}!";
+                    OnCriticalDrop?.Invoke(AssetSymbol, currentPrice, alertMsg);
                 }
             }
         }
         public double Volatility { get; set; }
         public double MeanReturn { get; set; }
+
+        public double? LowPriceThreshold { get; set; }
 
         public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
 

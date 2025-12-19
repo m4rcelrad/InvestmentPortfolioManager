@@ -65,6 +65,10 @@ namespace InvestmentPortfolioManager.ConsoleApp
                 btcAsset.OnPriceUpdate += DisplayAlert;
 
                 btcAsset.OnPriceUpdate += LogSimulation;
+
+                btcAsset.LowPriceThreshold = 60000.0;
+                btcAsset.OnCriticalDrop += DisplayCriticalAlert;
+                Console.WriteLine($"   [CONFIG] Alert threshold for BTC set to {btcAsset.LowPriceThreshold:C2}");
             }
 
             uint days = 10;
@@ -130,6 +134,15 @@ namespace InvestmentPortfolioManager.ConsoleApp
         static void LogSimulation(string symbol, double price, string message)
         {
             Console.WriteLine($"   [LOG] Audit record: {symbol} @ {price:F2}");
+        }
+
+        static void DisplayCriticalAlert(string symbol, double price, string message)
+        {
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"   !!! {message} ({symbol} is now {price:C2}) !!!   ");
+            Console.ResetColor();
+            Console.WriteLine();
         }
     }
 }
