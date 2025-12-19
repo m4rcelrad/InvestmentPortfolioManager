@@ -1,6 +1,7 @@
 ﻿using InvestmentPortfolioManager.Core.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,10 +11,11 @@ namespace InvestmentPortfolioManager.Core.Models
 {
     public class InvestmentPortfolio
     {
-        private List<Asset> assets = [];
+        private readonly ObservableCollection<Asset> _assets = [];
+        public ReadOnlyObservableCollection<Asset> Assets { get; }
+
         string owner = string.Empty;
 
-        public IEnumerable<Asset> Assets => assets;
         public string Owner
         {
             get => owner;
@@ -30,43 +32,52 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        public Asset? this[string symbol]
+        {
+            get => _assets.FirstOrDefault(a => a.AssetSymbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public InvestmentPortfolio()
+        {
+            Assets = new ReadOnlyObservableCollection<Asset>(_assets);
+        }
+
         public void AddNewAsset(Asset asset)
         {
-            assets.Add(asset);
+            if (asset == null) throw new ArgumentNullException(nameof(asset));
+
+            _assets.Add(asset);
         }
 
         public bool RemoveAsset(Asset asset)
         {
-            return assets.Remove(asset);
+            return _assets.Remove(asset);
         }
 
-        void RemoveAsset(Guid id)
+        public bool RemoveAsset(Guid id)
         {
-            Asset? to_remove = assets.FirstOrDefault(x => x.Asset_id == id);
-
-            if (to_remove != null)
+            Asset? toRemove = _assets.FirstOrDefault(x => x.Asset_id == id);
+            if (toRemove != null)
             {
-                assets.Remove(to_remove);
+                return _assets.Remove(toRemove);
             }
+            return false;
         }
 
-        public double CalculateSum()
-        {
-            return assets.Sum(x => x.CurrentPrice * x.Quantity);
-        }
+        public double CalculateSum() => _assets.Sum(x => x.Value);
 
         public void UpdateMarketPrices(DateTime simulationDate)
         {
-            foreach (var asset in assets)
+            foreach (var asset in _assets)
             {
                 asset.SimulatePriceChange(simulationDate);
             }
         }
 
-        public List<Asset> FindAssets( Predicate<Asset> predicate)
+        public IEnumerable<Asset> FindAssets(Func<Asset, bool> predicate)
         {
-            var listTemp = assets.ToList();
-            return listTemp.FindAll(predicate); 
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            return _assets.Where(predicate);
         }
     }
 }

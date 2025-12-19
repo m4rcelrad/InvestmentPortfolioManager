@@ -4,7 +4,9 @@ using InvestmentPortfolioManager.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -30,8 +32,11 @@ namespace InvestmentPortfolioManager.Core.Models
     [XmlInclude(typeof(Bond))]
     [XmlInclude(typeof(Cryptocurrency))]
     [XmlInclude(typeof(RealEstate))]
-    public abstract class Asset : IAsset, IComparable<Asset>, ICloneable
+    [XmlInclude(typeof(Commodity))]
+    public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public event AssetPriceChangedHandler? OnPriceUpdate;
         public event AssetPriceChangedHandler? OnCriticalDrop;
 
@@ -39,21 +44,24 @@ namespace InvestmentPortfolioManager.Core.Models
         private double currentPrice;
 
         public Guid Asset_id { get; init; }
-        public string AssetName {  get; set; } = string.Empty;
+        public string AssetName { get; set; } = string.Empty;
         public string AssetSymbol { get; set; } = string.Empty;
-
         public double PurchasePrice { get; init; }
+        public double Volatility { get; set; }
+        public double MeanReturn { get; set; }
+        public double? LowPriceThreshold { get; set; }
+        public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
 
         public double Quantity
         {
             get => quantity;
             set
             {
-                if (value <= 0)
-                {
-                    throw new InvalidQuantityException("Quantity must be greater than 0");
-                }
-                else quantity = value;
+                if (value <= 0) throw new InvalidQuantityException("Quantity must be greater than 0");
+                quantity = value;
+
+                OnPropertyChanged(nameof(Quantity));
+                OnPropertyChanged(nameof(Value));
             }
         }
 
@@ -62,36 +70,34 @@ namespace InvestmentPortfolioManager.Core.Models
             get => currentPrice;
             protected set
             {
-                if (value < 0)
-                {
-                    throw new InvalidPriceException("Price can't be lower than 0");
-                }
+                if (value < 0) throw new InvalidPriceException("Price can't be lower than 0");
 
                 bool hasChanged = Math.Abs(currentPrice - value) > 0.0001;
-                double oldPrice = currentPrice;
-                currentPrice = value;
 
-                if (hasChanged && OnPriceUpdate != null)
+                if (hasChanged)
                 {
-                    string movement = value > oldPrice ? "rose" : "dropped";
-                    string msg = $"Price {movement} by {Math.Abs(value - oldPrice):c}";
+                    double oldPrice = currentPrice;
+                    currentPrice = value;
 
-                    OnPriceUpdate.Invoke(AssetSymbol, currentPrice, msg);
-                }
+                    OnPropertyChanged(nameof(CurrentPrice));
+                    OnPropertyChanged(nameof(Value));
 
-                if (LowPriceThreshold.HasValue && currentPrice < LowPriceThreshold.Value)
-                {
-                    string alertMsg = $"CRITICAL WARNING: Price dropped below {LowPriceThreshold.Value:c}!";
-                    OnCriticalDrop?.Invoke(AssetSymbol, currentPrice, alertMsg);
+                    if (OnPriceUpdate != null)
+                    {
+                        string movement = value > oldPrice ? "rose" : "dropped";
+                        string msg = $"Price {movement} by {Math.Abs(value - oldPrice):c}";
+                        OnPriceUpdate.Invoke(AssetSymbol, currentPrice, msg);
+                    }
+
+                    if (LowPriceThreshold.HasValue && currentPrice < LowPriceThreshold.Value)
+                    {
+                        OnCriticalDrop?.Invoke(AssetSymbol, currentPrice, $"CRITICAL: Below {LowPriceThreshold.Value:c}");
+                    }
                 }
             }
         }
-        public double Volatility { get; set; }
-        public double MeanReturn { get; set; }
-
-        public double? LowPriceThreshold { get; set; }
-
-        public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
+        
+        public double Value => Quantity * CurrentPrice;
 
         public Asset()
         {
@@ -112,28 +118,17 @@ namespace InvestmentPortfolioManager.Core.Models
             MeanReturn = 0.0002;
         }
 
-        public double CalculateValue()
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            return quantity * currentPrice;
-        }     
-
-        public int CompareTo(Asset? other)
-        {
-            if (other == null) return 1;
-
-            return CalculateValue().CompareTo(other.CalculateValue());
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public virtual RiskEnum GetRiskAssessment()
-        {
-            return RiskEnum.Medium;
-        }
+        public int CompareTo(Asset? other) => other == null ? 1 : Value.CompareTo(other.Value);
+
+        public virtual RiskEnum GetRiskAssessment() => RiskEnum.Medium;
 
         public abstract void SimulatePriceChange(DateTime simulationDate);
 
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
+        public object Clone() => this.MemberwiseClone();
     }
 }
