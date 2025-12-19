@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\InvestmentPortfolioManager.Core\InvestmentPortfolioManager.Core.csproj" />
+  </ItemGroup>
+
 </Project>

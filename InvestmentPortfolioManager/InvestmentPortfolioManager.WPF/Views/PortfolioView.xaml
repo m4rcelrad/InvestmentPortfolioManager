@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="InvestmentPortfolioManager.WPF.Views.PortfolioView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Zarządzanie Aktywami" FontSize="20" Margin="0,0,0,10"/>
+
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding Assets}" 
+                  SelectedItem="{Binding SelectedAsset}"
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Symbol" Binding="{Binding AssetSymbol}" Width="80"/>
+                <DataGridTextColumn Header="Nazwa" Binding="{Binding AssetName}" Width="*"/>
+                <DataGridTextColumn Header="Cena" Binding="{Binding CurrentPrice, StringFormat=C}" Width="100"/>
+                <DataGridTextColumn Header="Ilość" Binding="{Binding Quantity}" Width="80"/>
+                <DataGridTextColumn Header="Wartość" Binding="{Binding Value, StringFormat=C}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
+            <Button Content="+ Dodaj Testowe (Mock)" Command="{Binding AddTestAssetCommand}" Width="150" Margin="5"/>
+
+            <Button Content="Usuń Wybrane" Command="{Binding RemoveAssetCommand}" Width="120" Margin="5" Background="#FFDDDD"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

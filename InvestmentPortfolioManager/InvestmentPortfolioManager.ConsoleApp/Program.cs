@@ -100,7 +100,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
             SimulationStart(portfolio, simulationStart, days);
 
             Console.WriteLine("\n[PREDICATES] Searching for high-value assets (> $1000)...");
-            Predicate<Asset> isExpensiveCriteria = asset => asset.CurrentPrice > 1000.0;
+            Func<Asset, bool> isExpensiveCriteria = asset => asset.CurrentPrice > 1000.0;
 
             var expensiveAssets = portfolio.FindAssets(isExpensiveCriteria);
 

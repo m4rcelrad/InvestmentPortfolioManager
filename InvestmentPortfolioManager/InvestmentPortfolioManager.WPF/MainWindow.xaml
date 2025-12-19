@@ -4,9 +4,36 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InvestmentPortfolioManager.WPF"
+        xmlns:mvvm="clr-namespace:InvestmentPortfolioManager.WPF.MVVM"
+        xmlns:views="clr-namespace:InvestmentPortfolioManager.WPF.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Investment Manager" Height="600" Width="900">
 
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type mvvm:DashboardViewModel}">
+            <views:DashboardView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type mvvm:PortfolioViewModel}">
+            <views:PortfolioView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Background="#333" Grid.Column="0">
+            <StackPanel>
+                <Button Content="Dashboard" Command="{Binding ShowDashboardCommand}"/>
+                <Button Content="Portfel" Command="{Binding ShowPortfolioCommand}"/>
+                <Button Content="Zapisz do Bazy" Command="{Binding SaveDataCommand}"/>
+                <Button Content="Wczytaj z Bazy" Command="{Binding LoadDataCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <ContentControl Grid.Column="1" Content="{Binding CurrentView}" Margin="20"/>
     </Grid>
 </Window>

@@ -79,5 +79,20 @@ namespace InvestmentPortfolioManager.Core.Models
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
             return _assets.Where(predicate);
         }
+
+        public Dictionary<string, double> GetAssetAllocation()
+        {
+            double total = CalculateSum();
+            if (total == 0) return [];
+
+            return _assets
+                .GroupBy(a => a.GetType().Name)
+                .ToDictionary(g => g.Key, g => g.Sum(a => a.Value) / total * 100);
+        }
+
+        public IEnumerable<Asset> GetTopMovers(int count)
+        {
+            return _assets.OrderByDescending(a => (a.CurrentPrice - a.PurchasePrice) / a.PurchasePrice).Take(count);
+        }
     }
 }
