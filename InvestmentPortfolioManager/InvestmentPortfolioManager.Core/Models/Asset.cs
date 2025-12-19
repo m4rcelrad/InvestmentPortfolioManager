@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace InvestmentPortfolioManager.Core.Models
@@ -42,15 +43,36 @@ namespace InvestmentPortfolioManager.Core.Models
 
         private double quantity;
         private double currentPrice;
+        private string assetName = string.Empty;
+        private string assetSymbol = string.Empty;
 
         public Guid Asset_id { get; init; }
-        public string AssetName { get; set; } = string.Empty;
-        public string AssetSymbol { get; set; } = string.Empty;
+        
         public double PurchasePrice { get; init; }
         public double Volatility { get; set; }
         public double MeanReturn { get; set; }
         public double? LowPriceThreshold { get; set; }
         public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
+
+        public string AssetName
+        {
+            get => assetName;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value)) throw new AssetNameException("Asset name can't be empty");
+                assetName = value;
+            }
+        }
+
+        public string AssetSymbol
+        {
+            get => assetSymbol;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value)) throw new AssetSymbolException("Asset symbol can't be empty");
+                assetSymbol = value.ToUpper();
+            }
+        }
 
         public double Quantity
         {
@@ -105,12 +127,9 @@ namespace InvestmentPortfolioManager.Core.Models
         }
 
         protected Asset(string name, string symbol, double quantity, double purchasePrice, double volatility) : this()
-        {
-            if (string.IsNullOrWhiteSpace(name)) throw new AssetNameException("Asset name can't be empty");
-            if (string.IsNullOrWhiteSpace(symbol)) throw new AssetSymbolException("Asset symbol can't be empty");
-
+        {         
             AssetName = name;
-            AssetSymbol = symbol.ToUpper();
+            AssetSymbol = symbol;
             Quantity = quantity;
             PurchasePrice = purchasePrice;
             CurrentPrice = purchasePrice;
