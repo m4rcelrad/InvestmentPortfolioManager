@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,7 +15,7 @@ namespace InvestmentPortfolioManager.Core.Models
     {
         private readonly ObservableCollection<Asset> _assets = [];
         public ReadOnlyObservableCollection<Asset> Assets { get; }
-
+            
         string owner = string.Empty;
 
         public string Owner
@@ -33,9 +34,11 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
-        public Asset? this[string symbol]
+        public Dictionary<string, LiveAssetSummary> PortfolioSummaries { get; } = [];
+
+        public IEnumerable<Asset> this[string symbol]
         {
-            get => _assets.FirstOrDefault(a => a.AssetSymbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+            get => _assets.Where(a => a.AssetSymbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
         }
 
         public InvestmentPortfolio()
@@ -45,14 +48,86 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public void AddNewAsset(Asset asset)
         {
-            if (asset == null) throw new ArgumentNullException(nameof(asset));
+            ArgumentNullException.ThrowIfNull(asset);
 
             _assets.Add(asset);
+            asset.PropertyChanged += OnAssetPropertyChanged;
+            UpdateSummary(asset);
         }
 
         public bool RemoveAsset(Asset asset)
         {
-            return _assets.Remove(asset);
+            if (_assets.Remove(asset))
+            {
+                asset.PropertyChanged -= OnAssetPropertyChanged;
+                UpdateSummary(asset);
+                return true;
+            }
+            return false;
+        }
+
+        private void OnAssetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is Asset asset && (e.PropertyName == nameof(Asset.CurrentPrice) || e.PropertyName == nameof(Asset.Quantity)))
+            {
+                UpdateSummary(asset);
+            }
+        }
+
+        private void UpdateSummary(Asset asset)
+        {
+            if (asset.IsMergeable)
+            {
+                string symbol = asset.AssetSymbol;
+                var assetsOfSymbol = _assets.Where(a => a.AssetSymbol == symbol).ToList();
+
+                if (assetsOfSymbol.Count == 0)
+                {
+                    PortfolioSummaries.Remove(symbol);
+                    return;
+                }
+
+                var totalQuantity = assetsOfSymbol.Sum(a => a.Quantity);
+                var totalCost = assetsOfSymbol.Sum(a => a.PurchasePrice * a.Quantity);
+                var totalValue = assetsOfSymbol.Sum(a => a.Value);
+
+                if (!PortfolioSummaries.TryGetValue(symbol, out var summary))
+                {
+                    summary = new LiveAssetSummary { AssetSymbol = symbol, AssetName = assetsOfSymbol.First().AssetName };
+                    PortfolioSummaries.Add(symbol, summary);
+                }
+
+                summary.TotalQuantity = totalQuantity;
+                summary.TotalCost = totalCost;
+                summary.TotalValue = totalValue;
+                summary.AveragePurchasePrice = totalQuantity > 0 ? totalCost / totalQuantity : 0;
+            }
+            else
+            {
+                string uniqueKey = $"{asset.AssetSymbol}_{asset.Asset_id}";
+                bool exists = _assets.Contains(asset);
+
+                if (!exists)
+                {
+                    PortfolioSummaries.Remove(uniqueKey);
+                    return;
+                }
+
+                if (!PortfolioSummaries.TryGetValue(uniqueKey, out var summary))
+                {
+                    summary = new LiveAssetSummary
+                    {
+                        AssetSymbol = asset.AssetSymbol,
+                        AssetName = asset.AssetName
+                    };
+                    PortfolioSummaries.Add(uniqueKey, summary);
+                }
+
+                summary.TotalQuantity = asset.Quantity;
+                summary.TotalCost = asset.PurchasePrice * asset.Quantity;
+                summary.TotalValue = asset.Value;
+                summary.AveragePurchasePrice = asset.PurchasePrice;
+            }
         }
 
         public bool RemoveAsset(Guid id)

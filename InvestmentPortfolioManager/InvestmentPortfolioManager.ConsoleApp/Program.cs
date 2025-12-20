@@ -2,9 +2,7 @@
 using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Exceptions;
 using InvestmentPortfolioManager.Core.Models;
-using InvestmentPortfolioManager.Core.Services;
 using System.Globalization;
-using System.Linq;
 
 namespace InvestmentPortfolioManager.ConsoleApp
 {
@@ -53,9 +51,19 @@ namespace InvestmentPortfolioManager.ConsoleApp
                 portfolio.AddNewAsset(apartment);
                 Console.WriteLine($"   + Added RealEstate: {apartment.AssetName} ({apartment.City}, {apartment.Street})");
 
+                var apartment2 = new RealEstate("Krakow Apartment", 800000.0, "Florianska", "67", "Krakow", "31-009", "Poland", "67");
+                portfolio.AddNewAsset(apartment2);
+                Console.WriteLine($"   + Added 2nd RealEstate: {apartment.AssetName} ({apartment.City}, {apartment.Street})");
+
+
                 var gold = new Commodity("Gold", "XAU", 10.0, 1950.0, UnitEnum.Ounce);
                 portfolio.AddNewAsset(gold);
                 Console.WriteLine($"   + Added Commodity: {gold.AssetName} ({gold.Quantity} {gold.Unit})");
+
+                Console.WriteLine("\n[TEST] Adding second Bitcoin tranche to test grouping logic...");
+                var crypto2 = new Cryptocurrency("Bitcoin", "BTC", 0.5, 30000.0);
+                portfolio.AddNewAsset(crypto2);
+                Console.WriteLine($"   + Added 2nd BTC: {crypto2.AssetSymbol} ({crypto2.Quantity} units @ {crypto2.PurchasePrice:c}) [CHEAPER]");
 
             }
             catch (InvalidAddressException ex)
@@ -83,9 +91,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
 
             if (btcAsset != null)
             {
-
                 btcAsset.OnPriceUpdate += DisplayAlert;
-
                 btcAsset.OnPriceUpdate += LogSimulation;
 
                 btcAsset.LowPriceThreshold = 42000.0;
@@ -96,8 +102,13 @@ namespace InvestmentPortfolioManager.ConsoleApp
             uint days = 10;
             DateTime simulationStart = DateTime.Today;
 
-            Console.WriteLine($"\n[INFO] Starting {days}-day market simulation starting form {simulationStart:d}");
+            Console.WriteLine($"\n[INFO] Starting {days}-day market simulation starting from {simulationStart:d}");
             SimulationStart(portfolio, simulationStart, days);
+
+            Console.WriteLine("\n==================================================");
+            Console.WriteLine("    GROUPED PORTFOLIO PERFORMANCE");
+            Console.WriteLine("==================================================");
+            PrintGroupedSummary(portfolio);
 
             Console.WriteLine("\n[PREDICATES] Searching for high-value assets (> $1000)...");
             Func<Asset, bool> isExpensiveCriteria = asset => asset.CurrentPrice > 1000.0;
@@ -108,6 +119,9 @@ namespace InvestmentPortfolioManager.ConsoleApp
             {
                 Console.WriteLine($"   -> FOUND: {asset.AssetSymbol} worth {asset.CurrentPrice:C2}");
             }
+
+            Console.WriteLine("\nPress any key to exit...");
+            Console.ReadKey();
         }
 
         static void SimulationStart(InvestmentPortfolio portfolio, DateTime simulationStart, uint days)
@@ -144,6 +158,32 @@ namespace InvestmentPortfolioManager.ConsoleApp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"TOTAL VALUE: {portfolio.CalculateSum():c}");
             Console.ResetColor();
+        }
+
+        static void PrintGroupedSummary(InvestmentPortfolio portfolio)
+        {
+            Console.WriteLine(new string('-', 115));
+
+            Console.WriteLine($"{"SYMBOL",-8} | {"NAME",-18} | {"QTY",12} | {"AVG BUY",18} | {"CURR VAL",20} | {"PROFIT/LOSS",18}");
+            Console.WriteLine(new string('-', 115));
+
+            foreach (var summary in portfolio.PortfolioSummaries.Values)
+            {
+                ConsoleColor originalColor = Console.ForegroundColor;
+                if (summary.TotalProfit > 0) Console.ForegroundColor = ConsoleColor.Green;
+                else if (summary.TotalProfit < 0) Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine(
+                    $"{summary.AssetSymbol,-8} | " +
+                    $"{summary.AssetName,-18} | " +     
+                    $"{summary.TotalQuantity,12:F4} | " + 
+                    $"{summary.AveragePurchasePrice,18:C2} | " + 
+                    $"{summary.TotalValue,20:C2} | " +
+                    $"{summary.TotalProfit,18:C2}");
+
+                Console.ForegroundColor = originalColor;
+            }
+            Console.WriteLine(new string('-', 115));
         }
 
         static void DisplayAlert(string symbol, double price, string message)

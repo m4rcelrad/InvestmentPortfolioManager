@@ -46,6 +46,8 @@ namespace InvestmentPortfolioManager.Core.Models
         private string assetName = string.Empty;
         private string assetSymbol = string.Empty;
 
+        public virtual bool IsMergeable => true;
+
         public Guid Asset_id { get; init; }
         
         public double PurchasePrice { get; init; }

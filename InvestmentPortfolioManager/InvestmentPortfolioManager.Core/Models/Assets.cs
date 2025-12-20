@@ -74,6 +74,8 @@ namespace InvestmentPortfolioManager.Core.Models
 
     public class RealEstate : Asset
     {
+        public override bool IsMergeable => false;
+            
         private string street = string.Empty;
         private string houseNumber = string.Empty;
         private string city = string.Empty;
