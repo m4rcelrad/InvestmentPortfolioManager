@@ -1,24 +1,18 @@
-﻿using System.Text;
+﻿using InvestmentPortfolioManager.Core.Interfaces;
+using InvestmentPortfolioManager.WPF.MVVM;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace InvestmentPortfolioManager.WPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+
+            // Tworzymy implementację IDataService, np. do testów możesz użyć mocka
+            IDataService dataService = new FileDataService(); // lub inna implementacja
+            DataContext = new MainViewModel(dataService);
         }
     }
 }
