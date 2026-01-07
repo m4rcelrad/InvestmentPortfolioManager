@@ -20,6 +20,7 @@ namespace InvestmentPortfolioManager.WPF.Views
     /// </summary>
     public partial class DashboardView : UserControl
     {
+
         public DashboardView()
         {
             InitializeComponent();

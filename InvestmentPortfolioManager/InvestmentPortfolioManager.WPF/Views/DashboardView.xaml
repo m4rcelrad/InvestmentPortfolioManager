@@ -1,25 +1,98 @@
 ﻿<UserControl x:Class="InvestmentPortfolioManager.WPF.Views.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <StackPanel>
-            <TextBlock Text="{Binding WelcomeMessage}" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Podsumowanie Portfela" FontSize="26" FontWeight="Bold" Margin="0,0,0,20" Foreground="#333"/>
 
             <WrapPanel>
-                <Border Background="#EEE" Width="200" Height="100" Margin="10" Padding="10" CornerRadius="5">
-                    <StackPanel>
-                        <TextBlock Text="Całkowita Wartość:" Foreground="Gray"/>
-                        <TextBlock Text="{Binding TotalValue, StringFormat={}{0:C}}" FontSize="20" FontWeight="Bold" Foreground="Green"/>
+                <Border Background="White" Width="220" Height="90" Margin="0,0,20,20" Padding="15" CornerRadius="10">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+                    </Border.Effect>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="CAŁKOWITA WARTOŚĆ" FontSize="11" Foreground="Gray" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding TotalValue, StringFormat={}{0:C}}" FontSize="22" FontWeight="Bold" Foreground="#2E7D32"/>
                     </StackPanel>
                 </Border>
 
-                <Border Background="#EEE" Width="200" Height="100" Margin="10" Padding="10" CornerRadius="5">
-                    <StackPanel>
-                        <TextBlock Text="Poziom Ryzyka:" Foreground="Gray"/>
-                        <TextBlock Text="{Binding PortfolioRiskLevel}" FontSize="16" FontWeight="Bold" Foreground="OrangeRed"/>
+                <Border Background="White" Width="220" Height="90" Margin="0,0,20,20" Padding="15" CornerRadius="10">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+                    </Border.Effect>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="POZIOM RYZYKA" FontSize="11" Foreground="Gray" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding PortfolioRiskLevel}" FontSize="20" FontWeight="Bold" Foreground="#D32F2F"/>
                     </StackPanel>
                 </Border>
             </WrapPanel>
+        </StackPanel>
+
+        <GroupBox Grid.Row="1" Header="Aktywa zbiorczo (według symbolu)" Margin="0,10,0,10" Padding="5">
+            <DataGrid ItemsSource="{Binding AssetSummaries}" 
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True" 
+                      SelectionMode="Single"
+                      BorderThickness="0"
+                      Background="Transparent"
+                      RowBackground="White"
+                      AlternatingRowBackground="#F9F9F9"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#EEE">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Symbol" Binding="{Binding AssetSymbol}" FontWeight="Bold" Width="80"/>
+                    <DataGridTextColumn Header="Nazwa" Binding="{Binding AssetName}" Width="*"/>
+                    <DataGridTextColumn Header="Ilość" Binding="{Binding TotalQuantity, StringFormat={}{0:N2}}" Width="80"/>
+                    <DataGridTextColumn Header="Śr. Cena" Binding="{Binding AveragePurchasePrice, StringFormat={}{0:C}}" Width="110"/>
+                    <DataGridTextColumn Header="Wartość" Binding="{Binding TotalValue, StringFormat={}{0:C}}" Width="120">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Zysk/Strata" Binding="{Binding TotalProfit, StringFormat={}{0:C}}" Width="120">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock Text="Największe Pozycje:" FontWeight="SemiBold" Margin="0,0,0,5" Foreground="Gray"/>
+            <ItemsControl ItemsSource="{Binding TopValuedAssets}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="5" Padding="8,4" Margin="0,0,10,0" Background="#F0F0F0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding AssetSymbol}" FontWeight="Bold" Margin="0,0,5,0"/>
+                                <TextBlock Text="{Binding Value, StringFormat={}{0:C}}" Foreground="#444"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
     </Grid>
 </UserControl>
