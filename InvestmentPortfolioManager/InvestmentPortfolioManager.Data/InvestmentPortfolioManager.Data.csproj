@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\InvestmentPortfolioManager.Core\InvestmentPortfolioManager.Core.csproj" />
   </ItemGroup>
 
