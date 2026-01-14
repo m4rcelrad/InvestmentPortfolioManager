@@ -8,11 +8,20 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
     public class InvestmentPortfolio : IEnumerable<Asset>
     {
+        [Key] public int InvestmentPortfolioId { get; set; }
+
+        public virtual ObservableCollection<Stock> Stocks { get; set; }
+        public virtual ObservableCollection<Bond> Bonds { get; set; }
+        public virtual ObservableCollection<Cryptocurrency> Cryptocurrencies { get; set; }
+        public virtual ObservableCollection<RealEstate> RealEstates { get; set; }
+        public virtual ObservableCollection<Commodity> Commodities { get; set; }
+        
         private readonly ObservableCollection<Asset> _assets = [];
         public ReadOnlyObservableCollection<Asset> Assets { get; }
             

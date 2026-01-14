@@ -11,6 +11,8 @@ namespace InvestmentPortfolioManager.Core.Models
 {
     public class Stock : Asset
     {
+        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+
         public Stock(string name, string symbol, double quantity, double price)
             : base(name, symbol, quantity, price, volatility: 0.02) { }
 
@@ -28,6 +30,8 @@ namespace InvestmentPortfolioManager.Core.Models
 
     public class Bond : Asset
     {
+        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+
         private double rate;
         public double Rate
         {
@@ -57,6 +61,8 @@ namespace InvestmentPortfolioManager.Core.Models
     
     public class Cryptocurrency : Asset
     {
+        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+
         public Cryptocurrency(string name, string symbol, double quantity, double price)
             : base(name, symbol, quantity, price, volatility: 0.08) { }
 
@@ -74,6 +80,8 @@ namespace InvestmentPortfolioManager.Core.Models
 
     public class RealEstate : Asset
     {
+        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+
         public override bool IsMergeable => false;
             
         private string street = string.Empty;
@@ -168,6 +176,8 @@ namespace InvestmentPortfolioManager.Core.Models
 
     public class Commodity : Asset
     {
+        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+
         private UnitEnum unit;
 
         public UnitEnum Unit
