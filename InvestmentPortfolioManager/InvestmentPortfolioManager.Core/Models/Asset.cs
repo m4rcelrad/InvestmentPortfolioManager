@@ -169,5 +169,15 @@ namespace InvestmentPortfolioManager.Core.Models
         {
             return Asset_id.GetHashCode();
         }
+
+        public void UpdatePrice(double newPrice)
+        {
+            CurrentPrice = newPrice;
+
+            if (CurrentPrice < LowPriceThreshold)
+            {
+                OnCriticalDrop?.Invoke(AssetSymbol, CurrentPrice, "Price fell below threshold!");
+            }
+        }
     }
 }
