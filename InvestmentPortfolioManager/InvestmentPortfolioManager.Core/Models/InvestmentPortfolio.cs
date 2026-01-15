@@ -153,9 +153,37 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public void UpdateMarketPrices(DateTime simulationDate)
         {
-            foreach (var asset in _assets)
+            var groupedAssets = _assets.GroupBy(asset =>
             {
-                asset.SimulatePriceChange(simulationDate);
+                if (asset is Commodity commodity)
+                {
+                    return $"{commodity.AssetSymbol}_{commodity.Unit}";
+                }
+
+                if (asset is RealEstate realEstate)
+                {
+                    return $"{realEstate.AssetSymbol}_{realEstate.AssetName}";
+                }
+
+                return asset.AssetSymbol;
+            });
+
+            foreach (var group in groupedAssets)
+            {
+                var leader = group.First();
+
+                leader.SimulatePriceChange(simulationDate);
+
+                double newMarketPrice = leader.CurrentPrice;
+
+                foreach (var asset in group)
+                {
+                    if (asset == leader) continue;
+
+                    asset.UpdatePrice(newMarketPrice);
+
+                    asset.PriceHistory.Add(new PricePoint(simulationDate, newMarketPrice));
+                }
             }
         }
 
