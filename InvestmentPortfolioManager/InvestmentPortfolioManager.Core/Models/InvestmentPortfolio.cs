@@ -15,16 +15,8 @@ namespace InvestmentPortfolioManager.Core.Models
     public class InvestmentPortfolio : IEnumerable<Asset>
     {
         [Key] public int InvestmentPortfolioId { get; set; }
+        public virtual ObservableCollection<Asset> Assets { get; set; } = [];
 
-        public virtual ObservableCollection<Stock> Stocks { get; set; }
-        public virtual ObservableCollection<Bond> Bonds { get; set; }
-        public virtual ObservableCollection<Cryptocurrency> Cryptocurrencies { get; set; }
-        public virtual ObservableCollection<RealEstate> RealEstates { get; set; }
-        public virtual ObservableCollection<Commodity> Commodities { get; set; }
-        
-        private readonly ObservableCollection<Asset> _assets = [];
-        public ReadOnlyObservableCollection<Asset> Assets { get; }
-            
         string owner = string.Empty;
 
         public string Owner
@@ -47,26 +39,23 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public IEnumerable<Asset> this[string symbol]
         {
-            get => _assets.Where(a => a.AssetSymbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+            get => Assets.Where(a => a.AssetSymbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
         }
 
-        public InvestmentPortfolio()
-        {
-            Assets = new ReadOnlyObservableCollection<Asset>(_assets);
-        }
+        public InvestmentPortfolio() { }
 
         public void AddNewAsset(Asset asset)
         {
             ArgumentNullException.ThrowIfNull(asset);
 
-            _assets.Add(asset);
+            Assets.Add(asset);
             asset.PropertyChanged += OnAssetPropertyChanged;
             UpdateSummary(asset);
         }
 
         public bool RemoveAsset(Asset asset)
         {
-            if (_assets.Remove(asset))
+            if (Assets.Remove(asset))
             {
                 asset.PropertyChanged -= OnAssetPropertyChanged;
                 UpdateSummary(asset);
@@ -88,7 +77,7 @@ namespace InvestmentPortfolioManager.Core.Models
             if (asset.IsMergeable)
             {
                 string symbol = asset.AssetSymbol;
-                var assetsOfSymbol = _assets.Where(a => a.AssetSymbol == symbol).ToList();
+                var assetsOfSymbol = Assets.Where(a => a.AssetSymbol == symbol).ToList();
 
                 if (assetsOfSymbol.Count == 0)
                 {
@@ -114,7 +103,7 @@ namespace InvestmentPortfolioManager.Core.Models
             else
             {
                 string uniqueKey = $"{asset.AssetSymbol}_{asset.Asset_id}";
-                bool exists = _assets.Contains(asset);
+                bool exists = Assets.Contains(asset);
 
                 if (!exists)
                 {
@@ -141,19 +130,19 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public bool RemoveAsset(Guid id)
         {
-            Asset? toRemove = _assets.FirstOrDefault(x => x.Asset_id == id);
+            Asset? toRemove = Assets.FirstOrDefault(x => x.Asset_id == id);
             if (toRemove != null)
             {
-                return _assets.Remove(toRemove);
+                return Assets.Remove(toRemove);
             }
             return false;
         }
 
-        public double CalculateSum() => _assets.Sum(x => x.Value);
+        public double CalculateSum() => Assets.Sum(x => x.Value);
 
         public void UpdateMarketPrices(DateTime simulationDate)
         {
-            var groupedAssets = _assets.GroupBy(asset =>
+            var groupedAssets = Assets.GroupBy(asset =>
             {
                 if (asset is Commodity commodity)
                 {
@@ -190,7 +179,7 @@ namespace InvestmentPortfolioManager.Core.Models
         public IEnumerable<Asset> FindAssets(Func<Asset, bool> predicate)
         {
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-            return _assets.Where(predicate);
+            return Assets.Where(predicate);
         }
 
         public Dictionary<string, double> GetAssetAllocation()
@@ -198,19 +187,19 @@ namespace InvestmentPortfolioManager.Core.Models
             double total = CalculateSum();
             if (total == 0) return [];
 
-            return _assets
+            return Assets
                 .GroupBy(a => a.GetType().Name)
                 .ToDictionary(g => g.Key, g => g.Sum(a => a.Value) / total * 100);
         }
 
         public IEnumerable<Asset> GetTopMovers(int count)
         {
-            return _assets.OrderByDescending(a => (a.CurrentPrice - a.PurchasePrice) / a.PurchasePrice).Take(count);
+            return Assets.OrderByDescending(a => (a.CurrentPrice - a.PurchasePrice) / a.PurchasePrice).Take(count);
         }
 
         public IEnumerator<Asset> GetEnumerator()
         {
-            return _assets.GetEnumerator();
+            return Assets.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

@@ -36,6 +36,9 @@ namespace InvestmentPortfolioManager.Core.Models
     [XmlInclude(typeof(Commodity))]
     public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged, IEquatable<Asset>
     {
+        public int InvestmentPortfolioId { get; set; }
+        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public event AssetPriceChangedHandler? OnPriceUpdate;
@@ -54,6 +57,7 @@ namespace InvestmentPortfolioManager.Core.Models
         public double Volatility { get; set; }
         public double MeanReturn { get; set; }
         public double? LowPriceThreshold { get; set; }
+
         public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
 
         public string AssetName
