@@ -13,6 +13,11 @@ namespace InvestmentPortfolioManager.Data
 {
     public class InvestmentPortfolioDbContext : DbContext
     {
+        public InvestmentPortfolioDbContext()
+            : base("name=InvestmentPortfolioDb")
+        {
+        }
+
         public DbSet<InvestmentPortfolio> Portfolios { get; set; }
         public DbSet<Asset> Assets { get; set; }
 
