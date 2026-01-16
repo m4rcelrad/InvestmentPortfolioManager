@@ -120,6 +120,59 @@ namespace InvestmentPortfolioManager.ConsoleApp
                 Console.WriteLine($"   -> FOUND: {asset.AssetSymbol} worth {asset.CurrentPrice:C2}");
             }
 
+            Console.WriteLine("\n\n==================================================");
+            Console.WriteLine("        TEST KLONOWANIA (DEEP COPY & GUID)");
+            Console.WriteLine("==================================================\n");
+
+            Console.WriteLine("[TEST] Creating a clone: 'Experimental Portfolio'...");
+            var clonedPortfolio = (InvestmentPortfolio)portfolio.Clone("Experimental Portfolio");
+
+            Console.WriteLine($"\n[CHECK 1] Verifying Portfolio IDs (Guid):");
+            Console.WriteLine($"   Original ID: {portfolio.InvestmentPortfolioId}");
+            Console.WriteLine($"   Clone ID:    {clonedPortfolio.InvestmentPortfolioId}");
+            
+            if (portfolio.InvestmentPortfolioId != clonedPortfolio.InvestmentPortfolioId) Console.ForegroundColor = ConsoleColor.Green;
+            else Console.ForegroundColor = ConsoleColor.Red;
+
+            Console.WriteLine(portfolio.InvestmentPortfolioId != clonedPortfolio.InvestmentPortfolioId
+                ? "   -> SUCCESS: IDs are unique."
+                : "   -> ERROR: IDs are identical (Database conflict risk)!");
+            Console.ResetColor();
+
+            Console.WriteLine($"\n[CHECK 2] Verifying Simulation Independence:");
+            double originalValueBefore = portfolio.CalculateSum();
+
+            Console.WriteLine($"   Original Value (BEFORE): {originalValueBefore:C2}");
+            Console.WriteLine("   ...Simulating market crash ONLY on the CLONE...");
+
+            DateTime simulationDate = DateTime.Now;
+
+            for (int i = 1; i <= 5; i++)
+            {
+                clonedPortfolio.UpdateMarketPrices(simulationDate.AddDays(10 + i));
+            }
+
+            double originalValueAfter = portfolio.CalculateSum();
+            double clonedValueAfter = clonedPortfolio.CalculateSum();
+
+            Console.WriteLine($"   Original Value (AFTER):  {originalValueAfter:C2}");
+            Console.WriteLine($"   Clone Value (AFTER):     {clonedValueAfter:C2}");
+
+            bool isSuccess = Math.Abs(originalValueBefore - originalValueAfter) < 0.01 &&
+                             Math.Abs(originalValueAfter - clonedValueAfter) > 0.01;
+
+            if (isSuccess)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("   -> SUCCESS: Original portfolio remained unchanged. Clone evolved independently.");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("   -> ERROR: Changes in clone affected the original (Shallow Copy issue!).");
+            }
+            Console.ResetColor();
+
             Console.WriteLine("\nPress any key to exit...");
             Console.ReadKey();
         }

@@ -36,8 +36,8 @@ namespace InvestmentPortfolioManager.Core.Models
     [XmlInclude(typeof(Commodity))]
     public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged, IEquatable<Asset>
     {
-        public int InvestmentPortfolioId { get; set; }
-        public virtual InvestmentPortfolio InvestmentPortfolio { get; set; }
+        public Guid InvestmentPortfolioId { get; set; }
+        public virtual InvestmentPortfolio? InvestmentPortfolio { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -51,7 +51,7 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public virtual bool IsMergeable => true;
 
-        public Guid Asset_id { get; init; }
+        public Guid Asset_id { get; set; } = Guid.NewGuid();
         
         public double PurchasePrice { get; init; }
         public double Volatility { get; set; }
@@ -127,10 +127,7 @@ namespace InvestmentPortfolioManager.Core.Models
         
         public double Value => Quantity * CurrentPrice;
 
-        public Asset()
-        {
-            Asset_id = Guid.NewGuid();
-        }
+        public Asset() { }
 
         protected Asset(string name, string symbol, double quantity, double purchasePrice, double volatility) : this()
         {         
@@ -154,7 +151,16 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public abstract void SimulatePriceChange(DateTime simulationDate);
 
-        public object Clone() => this.MemberwiseClone();
+        public object Clone()
+        {
+            var clone = (Asset)this.MemberwiseClone();
+            clone.Asset_id = Guid.NewGuid();
+            clone.InvestmentPortfolioId = Guid.Empty;
+            clone.InvestmentPortfolio = null;
+            clone.PriceHistory = new ObservableCollection<PricePoint>(this.PriceHistory);
+
+            return clone;
+        }
 
         public bool Equals(Asset? other)
         {

@@ -12,12 +12,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
-    public class InvestmentPortfolio : IEnumerable<Asset>
+    public class InvestmentPortfolio : IEnumerable<Asset>, ICloneable
     {
-        [Key] public int InvestmentPortfolioId { get; set; }
+        [Key] public Guid InvestmentPortfolioId { get; set; } = Guid.NewGuid();
         public virtual ObservableCollection<Asset> Assets { get; set; } = [];
 
         string owner = string.Empty;
+        string Name { get; set; } = "New portfolio";
 
         public string Owner
         {
@@ -205,6 +206,29 @@ namespace InvestmentPortfolioManager.Core.Models
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public object Clone()
+        {
+            return this.Clone(this.Name + " - Clone");
+        }
+
+        public object Clone(string newName)
+        {
+            var clone = new InvestmentPortfolio
+            {
+                InvestmentPortfolioId = Guid.NewGuid(),
+                Name = newName,
+                Owner = this.Owner
+            };
+
+            foreach (var asset in this.Assets)
+            {
+                var assetClone = (Asset)asset.Clone();
+                clone.AddNewAsset(assetClone);
+            }
+
+            return clone;
         }
     }
 }
