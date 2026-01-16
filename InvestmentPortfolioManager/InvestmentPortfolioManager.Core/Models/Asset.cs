@@ -58,6 +58,8 @@ namespace InvestmentPortfolioManager.Core.Models
         public double MeanReturn { get; set; }
         public double? LowPriceThreshold { get; set; }
 
+        public string AssetType => this.GetType().Name;
+
         public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
 
         public string AssetName

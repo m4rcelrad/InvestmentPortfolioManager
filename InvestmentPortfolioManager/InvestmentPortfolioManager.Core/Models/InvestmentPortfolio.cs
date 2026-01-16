@@ -185,7 +185,7 @@ namespace InvestmentPortfolioManager.Core.Models
 
             return Assets
                 .GroupBy(a => a.GetType().Name)
-                .ToDictionary(g => g.Key, g => g.Sum(a => a.Value) / total * 100);
+                .ToDictionary(g => g.Key, g => g.Sum(a => a.Value) / total);
         }
 
         public IEnumerable<Asset> GetTopMovers(int count)
