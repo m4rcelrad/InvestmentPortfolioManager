@@ -5,50 +5,107 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Xml.Serialization;
 
 namespace InvestmentPortfolioManager.WPF.MVVM
 {
     public class FileDataService : IDataService
     {
-        private readonly string _filePath = "portfolio.json";
+        private const string FilePath = "user_portfolios.xml";
 
-        public List<Asset> LoadPortfolio()
+        public void SavePortfolios(List<InvestmentPortfolio> portfolios)
         {
-            if (!File.Exists(_filePath))
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(List<InvestmentPortfolio>));
+
+                using (StreamWriter writer = new StreamWriter(FilePath))
+                {
+                    serializer.Serialize(writer, portfolios);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd zapisu XML: {ex.Message}");
+            }
+        }
+        public List<InvestmentPortfolio> LoadAllPortfolios()
+        {
+            if (File.Exists(FilePath))
+            {
+                try
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(List<InvestmentPortfolio>));
+                    using (StreamReader reader = new StreamReader(FilePath))
+                    {
+                        var loadedData = serializer.Deserialize(reader) as List<InvestmentPortfolio>;
+                        if (loadedData != null && loadedData.Count > 0)
+                        {
+                            return loadedData;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Błąd odczytu XML (ładowanie domyślnych): {ex.Message}");
+                }
+            }
+
+            return GenerateMockData();
+        }
+        private List<InvestmentPortfolio> GenerateMockData()
+        {
+            var portfolios = new List<InvestmentPortfolio>();
+
+            var p1 = new InvestmentPortfolio
+            {
+                Name = "Główny",
+                Owner = "Warren Buffet",
+                InvestmentPortfolioId = Guid.NewGuid()
+            };
+            p1.AddNewAsset(new Stock("Apple Inc.", "AAPL", 10, 150.0));
+            p1.AddNewAsset(new Cryptocurrency("Bitcoin", "BTC", 0.5, 30000.0));
+            portfolios.Add(p1);
+
+            var p2 = new InvestmentPortfolio
+            {
+                Name = "Emerytalny",
+                Owner = "Jan Kowalski",
+                InvestmentPortfolioId = Guid.NewGuid()
+            };
+            p2.AddNewAsset(new Commodity("Złoto", "GOLD", 10, 2000.0, UnitEnum.Ounce));
+            p2.AddNewAsset(new Stock("Apple Inc.", "AAPL", 10, 130.0));
+            portfolios.Add(p2);
+
+            SavePortfolios(portfolios);
+
+            return portfolios;
+        }
+
+        public List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment)
+        {
+            if (portfolio == null || portfolio.Assets == null)
                 return new List<Asset>();
 
-            string json = File.ReadAllText(_filePath);
-            var assets = JsonSerializer.Deserialize<List<Asset>>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var query = portfolio.Assets.AsEnumerable();
 
-            return assets ?? new List<Asset>();
-        }
+            if (minPrice.HasValue)
+                query = query.Where(a => a.CurrentPrice >= minPrice.Value);
 
-        public void SavePortfolio(List<Asset> assets)
-        {
-            string json = JsonSerializer.Serialize(assets,
-                new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_filePath, json);
-        }
+            if (maxPrice.HasValue)
+                query = query.Where(a => a.CurrentPrice <= maxPrice.Value);
 
-        // IMPLEMENTACJA brakującej metody z IDataService
-        public List<Asset> GetFilteredAssets(double? minValue, double? maxValue, RiskEnum? risk, string? name)
-        {
-            var assets = LoadPortfolio();
+            if (riskLevel.HasValue)
+                query = query.Where(a => a.GetRiskAssessment() == riskLevel.Value);
 
-            if (minValue.HasValue)
-                assets = assets.Where(a => a.Value >= minValue.Value).ToList();
+            if (!string.IsNullOrWhiteSpace(nameFragment))
+            {
+                query = query.Where(a =>
+                    a.AssetName.Contains(nameFragment, StringComparison.OrdinalIgnoreCase) ||
+                    a.AssetSymbol.Contains(nameFragment, StringComparison.OrdinalIgnoreCase));
+            }
 
-            if (maxValue.HasValue)
-                assets = assets.Where(a => a.Value <= maxValue.Value).ToList();
-
-            if (risk.HasValue)
-                assets = assets.Where(a => a.GetRiskAssessment() == risk.Value).ToList();
-
-            if (!string.IsNullOrWhiteSpace(name))
-                assets = assets.Where(a => a.AssetName.Contains(name, System.StringComparison.OrdinalIgnoreCase)).ToList();
-
-            return assets;
+            return query.ToList();
         }
     }
 }

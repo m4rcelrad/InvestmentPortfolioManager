@@ -12,13 +12,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
-    public class InvestmentPortfolio : IEnumerable<Asset>, ICloneable
+    public class InvestmentPortfolio : ICloneable
     {
         [Key] public Guid InvestmentPortfolioId { get; set; } = Guid.NewGuid();
         public virtual ObservableCollection<Asset> Assets { get; set; } = [];
 
         string owner = string.Empty;
-        string Name { get; set; } = "New portfolio";
+        public string Name { get; set; } = "New portfolio";
 
         public string Owner
         {
@@ -37,11 +37,6 @@ namespace InvestmentPortfolioManager.Core.Models
         }
 
         public Dictionary<string, LiveAssetSummary> PortfolioSummaries { get; } = [];
-
-        public IEnumerable<Asset> this[string symbol]
-        {
-            get => Assets.Where(a => a.AssetSymbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
-        }
 
         public InvestmentPortfolio() { }
 

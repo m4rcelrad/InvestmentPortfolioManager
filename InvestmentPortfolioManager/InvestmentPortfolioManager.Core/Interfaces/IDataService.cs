@@ -10,11 +10,11 @@ namespace InvestmentPortfolioManager.Core.Interfaces
 {
     public interface IDataService
     {
-        void SavePortfolio(List<Asset> assets);
-        
-        List<Asset> LoadPortfolio();
+        void SavePortfolios(List<InvestmentPortfolio> portfolios);
 
-        List<Asset> GetFilteredAssets(double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment);
+        List<InvestmentPortfolio> LoadAllPortfolios();
+
+        List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment)
 
     }
 }
