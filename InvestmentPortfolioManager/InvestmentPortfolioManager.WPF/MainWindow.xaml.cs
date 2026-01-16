@@ -1,6 +1,4 @@
-﻿using InvestmentPortfolioManager.Core.Interfaces;
-using InvestmentPortfolioManager.WPF.MVVM;
-using System.Windows;
+﻿using System.Windows;
 
 namespace InvestmentPortfolioManager.WPF
 {
@@ -9,10 +7,6 @@ namespace InvestmentPortfolioManager.WPF
         public MainWindow()
         {
             InitializeComponent();
-
-            // Tworzymy implementację IDataService, np. do testów możesz użyć mocka
-            IDataService dataService = new FileDataService(); // lub inna implementacja
-            DataContext = new MainViewModel(dataService);
         }
     }
 }

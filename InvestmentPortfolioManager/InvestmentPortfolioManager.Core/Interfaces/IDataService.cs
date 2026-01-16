@@ -14,7 +14,7 @@ namespace InvestmentPortfolioManager.Core.Interfaces
 
         List<InvestmentPortfolio> LoadAllPortfolios();
 
-        List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment)
+        List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment);
 
     }
 }

@@ -198,11 +198,6 @@ namespace InvestmentPortfolioManager.Core.Models
             return Assets.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         public object Clone()
         {
             return this.Clone(this.Name + " - Clone");
