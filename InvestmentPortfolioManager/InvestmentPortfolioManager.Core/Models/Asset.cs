@@ -14,7 +14,7 @@ using System.Xml.Serialization;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
- 
+
     public struct PricePoint
     {
         public DateTime Date { get; set; }
@@ -53,7 +53,7 @@ namespace InvestmentPortfolioManager.Core.Models
         public virtual bool IsMergeable => true;
 
         public Guid Asset_id { get; set; } = Guid.NewGuid();
-        
+
         public double PurchasePrice { get; set; }
         public double Volatility { get; set; }
         public double MeanReturn { get; set; } = 0.0002;
@@ -127,13 +127,17 @@ namespace InvestmentPortfolioManager.Core.Models
                 }
             }
         }
-        
+
         public double Value => Quantity * CurrentPrice;
+        [XmlIgnore]
+        public double ValueChange => (CurrentPrice - PurchasePrice) * Quantity;
+        [XmlIgnore]
+        public bool HasPositiveChange => ValueChange >= 0;
 
         public Asset() { }
 
         protected Asset(string name, string symbol, double quantity, double purchasePrice, double volatility) : this()
-        {         
+        {
             AssetName = name;
             AssetSymbol = symbol;
             Quantity = quantity;

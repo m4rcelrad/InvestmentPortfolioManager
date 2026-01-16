@@ -25,6 +25,13 @@
                 </StackPanel>
 
                 <StackPanel Margin="0,0,15,0">
+                    <TextBlock Text="Risk Level:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding RiskLevels}" 
+                              SelectedItem="{Binding SelectedRiskFilter}"
+                              Width="100" Padding="5"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,15,0">
                     <TextBlock Text="Min Price:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
                     <TextBox Text="{Binding MinPriceFilter, TargetNullValue=''}" Width="80" Padding="5"/>
                 </StackPanel>
@@ -35,6 +42,7 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,2">
+
                     <Button Content="Filter" Command="{Binding FilterCommand}" 
                             Width="80" Height="28" Margin="0,0,10,0" Background="#3498DB" Foreground="White" BorderThickness="0">
                         <Button.Resources>
@@ -51,12 +59,38 @@
                             </Style>
                         </Button.Resources>
                     </Button>
+
+                    <Rectangle Width="1" Fill="#E0E0E0" Margin="15,5"/>
+
+                    <Button Command="{Binding AddAssetCommand}" ToolTip="Add New Asset"
+                            Content="Add Asset" 
+                            Width="80" Height="28" Margin="0,0,10,0" 
+                            Background="#27AE60" Foreground="White" BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Button Command="{Binding RemoveAssetCommand}" ToolTip="Remove Selected Asset"
+                            Content="Remove" 
+                            Width="80" Height="28" 
+                            Background="#E74C3C" Foreground="White" BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
                 </StackPanel>
             </WrapPanel>
         </Border>
 
         <DataGrid Grid.Row="1" 
                   ItemsSource="{Binding Assets}" 
+                  SelectedItem="{Binding SelectedAsset}"
                   AutoGenerateColumns="False" 
                   CanUserAddRows="False"
                   IsReadOnly="True"
@@ -89,19 +123,40 @@
             </DataGrid.Resources>
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Symbol" Binding="{Binding AssetSymbol}" Width="80" FontWeight="Bold"/>
+                <DataGridTextColumn Header="Symbol" Binding="{Binding AssetSymbol}" Width="Auto" MinWidth="80" FontWeight="Bold"/>
 
-                <DataGridTextColumn Header="Name" Binding="{Binding AssetName}" Width="*"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding AssetName}" Width="*" MinWidth="150"/>
 
-                <DataGridTextColumn Header="Type" Binding="{Binding AssetType}" Width="100"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding AssetType}" Width="Auto" MinWidth="100"/>
 
-                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="80"/>
+                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="Auto" MinWidth="80"/>
 
-                <DataGridTextColumn Header="Purchase Price" Binding="{Binding PurchasePrice, StringFormat=C2}" Width="120"/>
+                <DataGridTextColumn Header="Purchase Price" Binding="{Binding PurchasePrice, StringFormat=C2}" Width="Auto" MinWidth="120"/>
 
-                <DataGridTextColumn Header="Current Price" Binding="{Binding CurrentPrice, StringFormat=C2}" Width="120" FontWeight="Bold"/>
+                <DataGridTextColumn Header="Current Price" Binding="{Binding CurrentPrice, StringFormat=C2}" Width="Auto" MinWidth="120" FontWeight="Bold"/>
 
-                <DataGridTextColumn Header="Value" Binding="{Binding Value, StringFormat=C2}" Width="120" Foreground="#27AE60" FontWeight="Bold"/>
+                <DataGridTextColumn Header="Value" Binding="{Binding Value, StringFormat=C2}" Width="Auto" MinWidth="120" Foreground="#2980B9" FontWeight="Bold"/>
+
+                <DataGridTemplateColumn Header="Total Change" Width="Auto" MinWidth="130">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ValueChange, StringFormat='{}{0:+#,##0.00;-#,##0.00;0.00}'}" 
+                                       FontWeight="Bold" VerticalAlignment="Center" Padding="5,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#E74C3C"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasPositiveChange}" Value="True">
+                                                <Setter Property="Foreground" Value="#27AE60"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

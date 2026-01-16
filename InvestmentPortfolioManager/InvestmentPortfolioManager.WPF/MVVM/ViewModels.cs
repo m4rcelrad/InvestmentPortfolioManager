@@ -1,5 +1,6 @@
 ﻿using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Models;
+using InvestmentPortfolioManager.WPF.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -71,6 +72,8 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         public double? MaxPriceFilter { get; set; }
         public RiskEnum? SelectedRiskFilter { get; set; }
 
+        public IEnumerable<RiskEnum> RiskLevels => Enum.GetValues(typeof(RiskEnum)).Cast<RiskEnum>();
+
         public ICommand FilterCommand { get; }
         public ICommand ClearFiltersCommand { get; }
 
@@ -83,6 +86,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
             FilterCommand = new RelayCommand(o => ApplyFilters());
             ClearFiltersCommand = new RelayCommand(o => ClearFilters());
+
+            AddAssetCommand = new RelayCommand(o => AddAsset());
+            RemoveAssetCommand = new RelayCommand(o => RemoveAsset());
         }
 
         public void UpdatePortfolio(InvestmentPortfolio newPortfolio)
@@ -130,6 +136,43 @@ namespace InvestmentPortfolioManager.WPF.MVVM
                 CollectionViewSource.GetDefaultView(Assets).Refresh();
             }
         }
+
+        private Asset? _selectedAsset;
+        public Asset? SelectedAsset
+        {
+            get => _selectedAsset;
+            set { _selectedAsset = value; OnPropertyChanged(); }
+        }
+
+        public ICommand AddAssetCommand { get; }
+        public ICommand RemoveAssetCommand { get; }
+
+        private void AddAsset()
+        {
+            if (_portfolio == null) return;
+
+            var addWindow = new AddAssetWindow();
+            if (addWindow.ShowDialog() == true && addWindow.CreatedAsset != null)
+            {
+                _portfolio.AddNewAsset(addWindow.CreatedAsset);
+                ApplyFilters();
+            }
+        }
+
+        private void RemoveAsset()
+        {
+            if (_portfolio == null || SelectedAsset == null) return;
+
+            var result = MessageBox.Show($"Are you sure you want to delete {SelectedAsset.AssetName}?",
+                                         "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                _portfolio.RemoveAsset(SelectedAsset);
+                ApplyFilters();
+            }
+        }
+
     }
 
     public class MainViewModel : ViewModelBase

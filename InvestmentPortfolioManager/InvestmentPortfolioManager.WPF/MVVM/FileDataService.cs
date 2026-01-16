@@ -73,7 +73,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             var p2 = new InvestmentPortfolio
             {
                 Name = "Retirement",
-                Owner = "John Doe",
+                Owner = "Bill Gates",
                 InvestmentPortfolioId = Guid.NewGuid()
             };
             p2.AddNewAsset(new Commodity("Gold", "GOLD", 10, 2000.0, UnitEnum.Ounce));

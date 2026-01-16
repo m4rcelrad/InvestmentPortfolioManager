@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InvestmentPortfolioManager.Core\InvestmentPortfolioManager.Core.csproj" />
+    <ProjectReference Include="..\InvestmentPortfolioManager.Data\InvestmentPortfolioManager.Data.csproj" />
   </ItemGroup>
 
 </Project>

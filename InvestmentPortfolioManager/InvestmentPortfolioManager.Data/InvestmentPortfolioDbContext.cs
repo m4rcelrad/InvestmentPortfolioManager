@@ -14,11 +14,18 @@ namespace InvestmentPortfolioManager.Data
     public class InvestmentPortfolioDbContext : DbContext
     {
         public DbSet<InvestmentPortfolio> Portfolios { get; set; }
-        public DbSet<Stock> Stocks { get; set; }
-        public DbSet<Bond> Bonds { get; set; }
-        public DbSet<Cryptocurrency> Cryptocurrencies { get; set; }
-        public DbSet<RealEstate> RealEstates { get; set; }
-        public DbSet<Commodity> Commodities { get; set; }
+        public DbSet<Asset> Assets { get; set; }
 
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Asset>()
+                .Map<Stock>(m => m.Requires("AssetType").HasValue("Stock"))
+                .Map<Bond>(m => m.Requires("AssetType").HasValue("Bond"))
+                .Map<Cryptocurrency>(m => m.Requires("AssetType").HasValue("Cryptocurrency"))
+                .Map<RealEstate>(m => m.Requires("AssetType").HasValue("RealEstate"))
+                .Map<Commodity>(m => m.Requires("AssetType").HasValue("Commodity"));
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
