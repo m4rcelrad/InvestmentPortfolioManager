@@ -20,25 +20,37 @@
             <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
 
                 <StackPanel Margin="0,0,15,0">
-                    <TextBlock Text="Szukaj (Nazwa/Symbol):" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBlock Text="Search (Name/Symbol):" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="150" Padding="5"/>
                 </StackPanel>
 
                 <StackPanel Margin="0,0,15,0">
-                    <TextBlock Text="Cena Min:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBlock Text="Min Price:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
                     <TextBox Text="{Binding MinPriceFilter, TargetNullValue=''}" Width="80" Padding="5"/>
                 </StackPanel>
 
                 <StackPanel Margin="0,0,15,0">
-                    <TextBlock Text="Cena Max:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBlock Text="Max Price:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
                     <TextBox Text="{Binding MaxPriceFilter, TargetNullValue=''}" Width="80" Padding="5"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,2">
-                    <Button Content="Filtruj" Command="{Binding FilterCommand}" 
-                            Width="80" Height="28" Margin="0,0,10,0" Background="#3498DB" Foreground="White" BorderThickness="0"/>
-                    <Button Content="Wyczyść" Command="{Binding ClearFiltersCommand}" 
-                            Width="80" Height="28" Background="#95A5A6" Foreground="White" BorderThickness="0"/>
+                    <Button Content="Filter" Command="{Binding FilterCommand}" 
+                            Width="80" Height="28" Margin="0,0,10,0" Background="#3498DB" Foreground="White" BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Content="Clear" Command="{Binding ClearFiltersCommand}" 
+                            Width="80" Height="28" Background="#95A5A6" Foreground="White" BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
                 </StackPanel>
             </WrapPanel>
         </Border>
@@ -79,17 +91,17 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Symbol" Binding="{Binding AssetSymbol}" Width="80" FontWeight="Bold"/>
 
-                <DataGridTextColumn Header="Nazwa" Binding="{Binding AssetName}" Width="*"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding AssetName}" Width="*"/>
 
-                <DataGridTextColumn Header="Typ" Binding="{Binding AssetType}" Width="100"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding AssetType}" Width="100"/>
 
-                <DataGridTextColumn Header="Ilość" Binding="{Binding Quantity}" Width="80"/>
+                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="80"/>
 
-                <DataGridTextColumn Header="Cena Zakupu" Binding="{Binding PurchasePrice, StringFormat=C2}" Width="120"/>
+                <DataGridTextColumn Header="Purchase Price" Binding="{Binding PurchasePrice, StringFormat=C2}" Width="120"/>
 
-                <DataGridTextColumn Header="Aktualna Cena" Binding="{Binding CurrentPrice, StringFormat=C2}" Width="120" FontWeight="Bold"/>
+                <DataGridTextColumn Header="Current Price" Binding="{Binding CurrentPrice, StringFormat=C2}" Width="120" FontWeight="Bold"/>
 
-                <DataGridTextColumn Header="Wartość" Binding="{Binding Value, StringFormat=C2}" Width="120" Foreground="#27AE60" FontWeight="Bold"/>
+                <DataGridTextColumn Header="Value" Binding="{Binding Value, StringFormat=C2}" Width="120" Foreground="#27AE60" FontWeight="Bold"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

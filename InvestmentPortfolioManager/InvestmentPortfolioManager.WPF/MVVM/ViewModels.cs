@@ -1,5 +1,6 @@
 ﻿using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -12,16 +13,16 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 {
     public class DashboardViewModel : ViewModelBase
     {
-        private InvestmentPortfolio _portfolio;
+        private InvestmentPortfolio? _portfolio;
 
         public double TotalValue => _portfolio?.CalculateSum() ?? 0;
         public double TotalProfit => _portfolio?.CalculateTotalProfit() ?? 0;
 
         public bool IsProfitPositive => TotalProfit >= 0;
 
-        public ObservableCollection<Asset> TopMovers { get; set; }
+        public ObservableCollection<Asset> TopMovers { get; set; } = [];
 
-        public Dictionary<string, double> Allocation { get; set; }
+        public Dictionary<string, double> Allocation { get; set; } = [];
 
         public DashboardViewModel(InvestmentPortfolio portfolio)
         {
@@ -39,7 +40,6 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             if (_portfolio == null) return;
 
             OnPropertyChanged(nameof(TotalValue));
-
             OnPropertyChanged(nameof(TotalProfit));
             OnPropertyChanged(nameof(IsProfitPositive));
 
@@ -55,16 +55,18 @@ namespace InvestmentPortfolioManager.WPF.MVVM
     public class PortfolioViewModel : ViewModelBase
     {
         private readonly FileDataService _dataService;
-        private InvestmentPortfolio _portfolio;
 
-        private ObservableCollection<Asset> _assets;
+        private InvestmentPortfolio? _portfolio;
+
+        private ObservableCollection<Asset> _assets = [];
         public ObservableCollection<Asset> Assets
         {
             get => _assets;
             set { _assets = value; OnPropertyChanged(); }
         }
 
-        public string SearchText { get; set; }
+        public string SearchText { get; set; } = string.Empty;
+
         public double? MinPriceFilter { get; set; }
         public double? MaxPriceFilter { get; set; }
         public RiskEnum? SelectedRiskFilter { get; set; }
@@ -139,9 +141,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         private bool _isSimulationRunning;
         private DateTime _simulationDate = DateTime.Now;
 
-        public ObservableCollection<InvestmentPortfolio> AllPortfolios { get; set; }
+        public ObservableCollection<InvestmentPortfolio> AllPortfolios { get; set; } = [];
 
-        private InvestmentPortfolio _selectedPortfolio;
+        private InvestmentPortfolio _selectedPortfolio = null!;
+
         public InvestmentPortfolio SelectedPortfolio
         {
             get => _selectedPortfolio;
@@ -158,8 +161,8 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
         }
 
-        public DashboardViewModel DashboardVM { get; set; }
-        public PortfolioViewModel PortfolioVM { get; set; }
+        public DashboardViewModel DashboardVM { get; set; } = null!;
+        public PortfolioViewModel PortfolioVM { get; set; } = null!;
 
         public object CurrentView
         {
@@ -167,24 +170,34 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             set { _currentView = value; OnPropertyChanged(); }
         }
 
-        public string SimulationButtonText => _isSimulationRunning ? "Stop Symulacji" : "Start Symulacji";
+        public string SimulationButtonText => _isSimulationRunning ? "Stop Simulation" : "Start Simulation";
         public string SimulationButtonColor => _isSimulationRunning ? "#E74C3C" : "#3498DB";
 
         public ICommand SwitchViewCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand ToggleSimulationCommand { get; }
 
+        public ICommand CreatePortfolioCommand { get; }
+        public ICommand ClonePortfolioCommand { get; }
+        public ICommand DeletePortfolioCommand { get; }
+
         public MainViewModel()
         {
             _dataService = new FileDataService();
 
+            _simulationTimer = new DispatcherTimer();
+            InitializeSimulation();
+
             var loadedPortfolios = _dataService.LoadAllPortfolios();
 
             AllPortfolios = new ObservableCollection<InvestmentPortfolio>(loadedPortfolios);
-            _selectedPortfolio = AllPortfolios.FirstOrDefault();
+
+            _selectedPortfolio = AllPortfolios.First();
 
             DashboardVM = new DashboardViewModel(_selectedPortfolio);
             PortfolioVM = new PortfolioViewModel(_selectedPortfolio);
+
+            _currentView = DashboardVM;
             CurrentView = DashboardVM;
 
             SwitchViewCommand = new RelayCommand(o =>
@@ -199,17 +212,19 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             SaveCommand = new RelayCommand(o =>
             {
                 _dataService.SavePortfolios(new List<InvestmentPortfolio>(AllPortfolios));
-                MessageBox.Show("Zapisano", "Sukces");
+                MessageBox.Show("Saved Successfully", "Success");
             });
 
-            InitializeSimulation();
+            CreatePortfolioCommand = new RelayCommand(o => CreatePortfolio());
+            ClonePortfolioCommand = new RelayCommand(o => ClonePortfolio());
+            DeletePortfolioCommand = new RelayCommand(o => DeletePortfolio());
+
             ToggleSimulationCommand = new RelayCommand(o => ToggleSimulation());
         }
 
         private void InitializeSimulation()
         {
-            _simulationTimer = new DispatcherTimer();
-            _simulationTimer.Interval = TimeSpan.FromSeconds(10);
+            _simulationTimer.Interval = TimeSpan.FromSeconds(5);
             _simulationTimer.Tick += SimulationTimer_Tick;
         }
 
@@ -240,9 +255,48 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             SelectedPortfolio.UpdateMarketPrices(_simulationDate);
 
             DashboardVM.RecalculateStats();
-
             PortfolioVM.RefreshView();
         }
 
+        private void CreatePortfolio()
+        {
+            var newPortfolio = new InvestmentPortfolio
+            {
+                Name = $"Portfolio {AllPortfolios.Count + 1}",
+                Owner = "New Investor"
+            };
+
+            AllPortfolios.Add(newPortfolio);
+            SelectedPortfolio = newPortfolio;
+        }
+
+        private void ClonePortfolio()
+        {
+            if (SelectedPortfolio == null) return;
+
+            var clone = (InvestmentPortfolio)SelectedPortfolio.Clone();
+
+            AllPortfolios.Add(clone);
+            SelectedPortfolio = clone;
+        }
+
+        private void DeletePortfolio()
+        {
+            if (SelectedPortfolio == null) return;
+
+            var toRemove = SelectedPortfolio;
+
+            if (AllPortfolios.Count > 1)
+            {
+                var index = AllPortfolios.IndexOf(toRemove);
+                SelectedPortfolio = index > 0 ? AllPortfolios[index - 1] : AllPortfolios[index + 1];
+            }
+            else
+            {
+                CreatePortfolio();
+            }
+
+            AllPortfolios.Remove(toRemove);
+        }
     }
 }

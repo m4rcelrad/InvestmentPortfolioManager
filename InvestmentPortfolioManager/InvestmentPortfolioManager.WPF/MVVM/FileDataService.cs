@@ -1,6 +1,7 @@
 ﻿using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Interfaces;
 using InvestmentPortfolioManager.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,9 +27,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Błąd zapisu XML: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"XML save error: {ex.Message}");
             }
         }
+
         public List<InvestmentPortfolio> LoadAllPortfolios()
         {
             if (File.Exists(FilePath))
@@ -47,19 +49,20 @@ namespace InvestmentPortfolioManager.WPF.MVVM
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Błąd odczytu XML (ładowanie domyślnych): {ex.Message}");
+                    Console.WriteLine($"XML read error (loading defaults): {ex.Message}");
                 }
             }
 
             return GenerateMockData();
         }
+
         private List<InvestmentPortfolio> GenerateMockData()
         {
             var portfolios = new List<InvestmentPortfolio>();
 
             var p1 = new InvestmentPortfolio
             {
-                Name = "Główny",
+                Name = "Main",
                 Owner = "Warren Buffet",
                 InvestmentPortfolioId = Guid.NewGuid()
             };
@@ -69,11 +72,11 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
             var p2 = new InvestmentPortfolio
             {
-                Name = "Emerytalny",
-                Owner = "Jan Kowalski",
+                Name = "Retirement",
+                Owner = "John Doe",
                 InvestmentPortfolioId = Guid.NewGuid()
             };
-            p2.AddNewAsset(new Commodity("Złoto", "GOLD", 10, 2000.0, UnitEnum.Ounce));
+            p2.AddNewAsset(new Commodity("Gold", "GOLD", 10, 2000.0, UnitEnum.Ounce));
             p2.AddNewAsset(new Stock("Apple Inc.", "AAPL", 10, 130.0));
             portfolios.Add(p2);
 
