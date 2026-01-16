@@ -1,10 +1,12 @@
 ﻿using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Models;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Input;
 using System.Windows;
-using System.Collections.Generic;
+using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace InvestmentPortfolioManager.WPF.MVVM
 {
@@ -112,12 +114,24 @@ namespace InvestmentPortfolioManager.WPF.MVVM
                 Assets = new ObservableCollection<Asset>(_portfolio.Assets);
             }
         }
+
+        public void RefreshView()
+        {
+            if (Assets != null)
+            {
+                CollectionViewSource.GetDefaultView(Assets).Refresh();
+            }
+        }
     }
 
     public class MainViewModel : ViewModelBase
     {
         private readonly FileDataService _dataService;
         private object _currentView;
+
+        private DispatcherTimer _simulationTimer;
+        private bool _isSimulationRunning;
+        private DateTime _simulationDate = DateTime.Now;
 
         public ObservableCollection<InvestmentPortfolio> AllPortfolios { get; set; }
 
@@ -147,21 +161,22 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             set { _currentView = value; OnPropertyChanged(); }
         }
 
+        public string SimulationButtonText => _isSimulationRunning ? "Stop Symulacji" : "Start Symulacji";
+        public string SimulationButtonColor => _isSimulationRunning ? "#E74C3C" : "#3498DB";
+
         public ICommand SwitchViewCommand { get; }
         public ICommand SaveCommand { get; }
+        public ICommand ToggleSimulationCommand { get; }
 
         public MainViewModel()
         {
             _dataService = new FileDataService();
-
             var loadedPortfolios = _dataService.LoadAllPortfolios();
             AllPortfolios = new ObservableCollection<InvestmentPortfolio>(loadedPortfolios);
-
             _selectedPortfolio = AllPortfolios.FirstOrDefault();
 
             DashboardVM = new DashboardViewModel(_selectedPortfolio);
             PortfolioVM = new PortfolioViewModel(_selectedPortfolio);
-
             CurrentView = DashboardVM;
 
             SwitchViewCommand = new RelayCommand(o =>
@@ -176,8 +191,50 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             SaveCommand = new RelayCommand(o =>
             {
                 _dataService.SavePortfolios(new List<InvestmentPortfolio>(AllPortfolios));
-                MessageBox.Show("Wszystkie portfele zostały zapisane", "Zapis zakończony");
+                MessageBox.Show("Zapisano!", "Sukces");
             });
+
+            InitializeSimulation();
+            ToggleSimulationCommand = new RelayCommand(o => ToggleSimulation());
         }
+
+        private void InitializeSimulation()
+        {
+            _simulationTimer = new DispatcherTimer();
+            _simulationTimer.Interval = TimeSpan.FromSeconds(10);
+            _simulationTimer.Tick += SimulationTimer_Tick;
+        }
+
+        private void ToggleSimulation()
+        {
+            if (_isSimulationRunning)
+            {
+                _simulationTimer.Stop();
+                _isSimulationRunning = false;
+            }
+            else
+            {
+                _simulationTimer.Start();
+                _isSimulationRunning = true;
+                SimulationTimer_Tick(null, null);
+            }
+
+            OnPropertyChanged(nameof(SimulationButtonText));
+            OnPropertyChanged(nameof(SimulationButtonColor));
+        }
+
+        private void SimulationTimer_Tick(object? sender, EventArgs? e)
+        {
+            if (SelectedPortfolio == null) return;
+
+            _simulationDate = _simulationDate.AddDays(1);
+
+            SelectedPortfolio.UpdateMarketPrices(_simulationDate);
+
+            DashboardVM.RecalculateStats();
+
+            PortfolioVM.RefreshView();
+        }
+
     }
 }
