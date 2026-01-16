@@ -177,7 +177,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         public MainViewModel()
         {
             _dataService = new FileDataService();
+
             var loadedPortfolios = _dataService.LoadAllPortfolios();
+
             AllPortfolios = new ObservableCollection<InvestmentPortfolio>(loadedPortfolios);
             _selectedPortfolio = AllPortfolios.FirstOrDefault();
 
@@ -197,7 +199,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             SaveCommand = new RelayCommand(o =>
             {
                 _dataService.SavePortfolios(new List<InvestmentPortfolio>(AllPortfolios));
-                MessageBox.Show("Zapisano!", "Sukces");
+                MessageBox.Show("Zapisano", "Sukces");
             });
 
             InitializeSimulation();

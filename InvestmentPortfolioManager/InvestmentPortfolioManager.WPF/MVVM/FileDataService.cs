@@ -26,7 +26,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Błąd zapisu XML: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Błąd zapisu XML: {ex.Message}");
             }
         }
         public List<InvestmentPortfolio> LoadAllPortfolios()

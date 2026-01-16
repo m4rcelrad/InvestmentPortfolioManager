@@ -37,6 +37,7 @@ namespace InvestmentPortfolioManager.Core.Models
     public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged, IEquatable<Asset>
     {
         public Guid InvestmentPortfolioId { get; set; }
+        [XmlIgnore]
         public virtual InvestmentPortfolio? InvestmentPortfolio { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -53,14 +54,14 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public Guid Asset_id { get; set; } = Guid.NewGuid();
         
-        public double PurchasePrice { get; init; }
+        public double PurchasePrice { get; set; }
         public double Volatility { get; set; }
-        public double MeanReturn { get; set; }
+        public double MeanReturn { get; set; } = 0.0002;
         public double? LowPriceThreshold { get; set; }
 
         public string AssetType => this.GetType().Name;
 
-        public ObservableCollection<PricePoint> PriceHistory { get; private set; } = [];
+        public ObservableCollection<PricePoint> PriceHistory { get; set; } = [];
 
         public string AssetName
         {
@@ -98,7 +99,7 @@ namespace InvestmentPortfolioManager.Core.Models
         public double CurrentPrice
         {
             get => currentPrice;
-            protected set
+            set
             {
                 if (value < 0) throw new InvalidPriceException("Price can't be lower than 0");
 
@@ -139,7 +140,6 @@ namespace InvestmentPortfolioManager.Core.Models
             PurchasePrice = purchasePrice;
             CurrentPrice = purchasePrice;
             Volatility = volatility;
-            MeanReturn = 0.0002;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

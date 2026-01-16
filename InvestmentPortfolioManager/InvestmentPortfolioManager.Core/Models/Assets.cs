@@ -11,6 +11,7 @@ namespace InvestmentPortfolioManager.Core.Models
 {
     public class Stock : Asset
     {
+        public Stock() { }
         public Stock(string name, string symbol, double quantity, double price)
             : base(name, symbol, quantity, price, volatility: 0.02) { }
 
@@ -39,6 +40,7 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        public Bond() { }
         public Bond(string name, string symbol, double quantity, double price, double rate)
             : base(name, symbol, quantity, price, volatility: 0)
         {
@@ -57,6 +59,7 @@ namespace InvestmentPortfolioManager.Core.Models
     
     public class Cryptocurrency : Asset
     {
+        public Cryptocurrency() { }
         public Cryptocurrency(string name, string symbol, double quantity, double price)
             : base(name, symbol, quantity, price, volatility: 0.08) { }
 
@@ -139,6 +142,7 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        public RealEstate() { }
         public RealEstate(string name, double purchasePrice, string street, string houseNumber, string city, string zipCode, string country, string flatNumber = "")
             : base(name, "PROP", quantity: 1, purchasePrice, volatility: 0.005)
         {
@@ -182,6 +186,8 @@ namespace InvestmentPortfolioManager.Core.Models
                 unit = value;
             }
         }
+
+        public Commodity() { }
 
         public Commodity(string name, string symbol, double quantity, double price, UnitEnum unit)
             : base(name, symbol, quantity, price, volatility: 0.015)
