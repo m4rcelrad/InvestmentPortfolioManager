@@ -172,12 +172,6 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
-        public IEnumerable<Asset> FindAssets(Func<Asset, bool> predicate)
-        {
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-            return Assets.Where(predicate);
-        }
-
         public Dictionary<string, double> GetAssetAllocation()
         {
             double total = CalculateSum();
@@ -191,11 +185,6 @@ namespace InvestmentPortfolioManager.Core.Models
         public IEnumerable<Asset> GetTopMovers(int count)
         {
             return Assets.OrderByDescending(a => (a.CurrentPrice - a.PurchasePrice) / a.PurchasePrice).Take(count);
-        }
-
-        public IEnumerator<Asset> GetEnumerator()
-        {
-            return Assets.GetEnumerator();
         }
 
         public object Clone()
@@ -219,6 +208,13 @@ namespace InvestmentPortfolioManager.Core.Models
             }
 
             return clone;
+        }
+
+        public double CalculateTotalProfit()
+        {
+            if (Assets == null || !Assets.Any()) return 0.0;
+
+            return Assets.Sum(asset => (asset.CurrentPrice - asset.PurchasePrice) * asset.Quantity);
         }
     }
 }

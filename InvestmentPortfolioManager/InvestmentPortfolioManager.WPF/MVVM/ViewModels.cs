@@ -15,6 +15,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         private InvestmentPortfolio _portfolio;
 
         public double TotalValue => _portfolio?.CalculateSum() ?? 0;
+        public double TotalProfit => _portfolio?.CalculateTotalProfit() ?? 0;
+
+        public bool IsProfitPositive => TotalProfit >= 0;
 
         public ObservableCollection<Asset> TopMovers { get; set; }
 
@@ -36,6 +39,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             if (_portfolio == null) return;
 
             OnPropertyChanged(nameof(TotalValue));
+
+            OnPropertyChanged(nameof(TotalProfit));
+            OnPropertyChanged(nameof(IsProfitPositive));
 
             var movers = _portfolio.GetTopMovers(3);
             TopMovers = new ObservableCollection<Asset>(movers);

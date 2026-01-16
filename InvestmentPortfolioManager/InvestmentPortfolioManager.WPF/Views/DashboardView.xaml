@@ -6,104 +6,138 @@
              xmlns:vm="clr-namespace:InvestmentPortfolioManager.WPF.MVVM"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}"
-             d:DesignHeight="500" d:DesignWidth="800">
+             d:DesignHeight="500" d:DesignWidth="900">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Background="#27AE60" CornerRadius="8" Padding="25" Margin="0,0,0,20">
+        <Border Grid.Row="0" Grid.Column="0" 
+                Background="#2980B9" CornerRadius="8" Padding="20" Margin="0,0,10,20">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="3" Opacity="0.2"/>
             </Border.Effect>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Całkowita Wartość Portfela" 
-                           Foreground="White" Opacity="0.9" FontSize="16" Margin="0,0,0,5"/>
+                <TextBlock Text="Wartość Portfela" 
+                           Foreground="White" Opacity="0.8" FontSize="14" Margin="0,0,0,5"/>
 
                 <TextBlock Text="{Binding TotalValue, StringFormat=C2}" 
-                           Foreground="White" FontSize="42" FontWeight="Bold"/>
+                           Foreground="White" FontSize="36" FontWeight="Bold"/>
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="1" 
+                CornerRadius="8" Padding="20" Margin="10,0,0,20">
 
-            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="15" Margin="0,0,10,0">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
-                </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="#95A5A6"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsProfitPositive}" Value="True">
+                            <Setter Property="Background" Value="#27AE60"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsProfitPositive}" Value="False">
+                            <Setter Property="Background" Value="#E74C3C"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
 
-                    <TextBlock Text="Największe Aktywa" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="3" Opacity="0.2"/>
+            </Border.Effect>
 
-                    <ItemsControl Grid.Row="1" ItemsSource="{Binding TopMovers}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="#EEE" BorderThickness="0,0,0,1" Padding="5">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Całkowity Zysk/Strata" 
+                           Foreground="White" Opacity="0.8" FontSize="14" Margin="0,0,0,5"/>
 
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding AssetSymbol}" FontWeight="Bold" Foreground="#34495E"/>
-                                            <TextBlock Text="{Binding AssetName}" FontSize="12" Foreground="Gray"/>
-                                        </StackPanel>
+                <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:+#,##0.00;-#,##0.00;0.00}}" 
+                           Foreground="White" FontSize="36" FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat=C2}" 
-                                                   VerticalAlignment="Center" FontWeight="Bold" Foreground="#27AE60"/>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </Border>
 
-            <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="15" Margin="10,0,0,0">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
-                </Border.Effect>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+        <Border Grid.Row="1" Grid.Column="0" 
+                Background="White" CornerRadius="8" Padding="15" Margin="0,0,10,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                    <TextBlock Text="Alokacja Aktywów" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+                <TextBlock Text="Największe Aktywa" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
 
-                    <ListBox Grid.Row="1" ItemsSource="{Binding Allocation}" BorderThickness="0" Background="Transparent">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Focusable" Value="False"/>
-                                <Setter Property="IsHitTestVisible" Value="False"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,4">
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding TopMovers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#EEE" BorderThickness="0,0,0,1" Padding="5">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Key}" Foreground="#34495E"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat=P1}" FontWeight="Bold" Foreground="#2980B9"/>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding AssetSymbol}" FontWeight="Bold" Foreground="#34495E"/>
+                                        <TextBlock Text="{Binding AssetName}" FontSize="12" Foreground="Gray"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat=C2}" 
+                                               VerticalAlignment="Center" FontWeight="Bold" Foreground="#2980B9"/>
                                 </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </Border>
-        </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="1" 
+                Background="White" CornerRadius="8" Padding="15" Margin="10,0,0,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Alokacja Aktywów" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+
+                <ListBox Grid.Row="1" ItemsSource="{Binding Allocation}" BorderThickness="0" Background="Transparent">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Focusable" Value="False"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                            <Setter Property="Padding" Value="5"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Key}" Foreground="#34495E" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat=P1}" 
+                                           FontWeight="Bold" Foreground="#27AE60"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
     </Grid>
 </UserControl>
