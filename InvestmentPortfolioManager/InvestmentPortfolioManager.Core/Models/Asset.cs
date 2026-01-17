@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
@@ -62,9 +63,8 @@ namespace InvestmentPortfolioManager.Core.Models
         public double MeanReturn { get; set; } = 0.0002;
         public double? LowPriceThreshold { get; set; }
 
-        public string AssetType => this.GetType().Name;
 
-        public ObservableCollection<PricePoint> PriceHistory { get; set; } = [];
+        [NotMapped] public ObservableCollection<PricePoint> PriceHistory { get; set; } = [];
 
         public string AssetName
         {
