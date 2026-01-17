@@ -61,7 +61,20 @@ namespace InvestmentPortfolioManager.Core.Models
         public double PurchasePrice { get; set; }
         public double Volatility { get; set; }
         public double MeanReturn { get; set; } = 0.0002;
-        public double? LowPriceThreshold { get; set; }
+
+        private double? lowPriceThreshold;
+        public double? LowPriceThreshold
+        {
+            get => lowPriceThreshold;
+            set
+            {
+                if (lowPriceThreshold != value)
+                {
+                    lowPriceThreshold = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
 
         [NotMapped] public ObservableCollection<PricePoint> PriceHistory { get; set; } = [];
