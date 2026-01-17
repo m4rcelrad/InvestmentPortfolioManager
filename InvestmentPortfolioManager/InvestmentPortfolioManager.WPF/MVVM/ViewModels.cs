@@ -289,6 +289,18 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
             AllPortfolios = new ObservableCollection<InvestmentPortfolio>(loadedPortfolios);
 
+            if (AllPortfolios.Count == 0)
+            {
+                var defaultPortfolio = new InvestmentPortfolio
+                {
+                    Name = "Default Portfolio",
+                    Owner = "Admin User"
+                };
+                AllPortfolios.Add(defaultPortfolio);
+
+                _dataService.SavePortfolios(new List<InvestmentPortfolio> { defaultPortfolio });
+            }
+
             var initialPortfolio = AllPortfolios.First();
             DashboardVM = new DashboardViewModel(initialPortfolio);
             PortfolioVM = new PortfolioViewModel(initialPortfolio);
