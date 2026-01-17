@@ -101,12 +101,22 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         {
             if (_portfolio == null) return;
 
-            var filtered = _dataService.GetFilteredAssets(
-                _portfolio,
-                MinPriceFilter,
-                MaxPriceFilter,
-                SelectedRiskFilter,
-                SearchText);
+            Func<Asset, bool> filterPredicate = asset =>
+            {
+                bool matchesSearch = string.IsNullOrWhiteSpace(SearchText) ||
+                             asset.AssetName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                             asset.AssetSymbol.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
+
+                bool matchesMinPrice = !MinPriceFilter.HasValue || asset.CurrentPrice >= MinPriceFilter.Value;
+
+                bool matchesMaxPrice = !MaxPriceFilter.HasValue || asset.CurrentPrice <= MaxPriceFilter.Value;
+
+                bool matchesRisk = !SelectedRiskFilter.HasValue || asset.GetRiskAssessment() == SelectedRiskFilter.Value;
+
+                return matchesSearch && matchesMinPrice && matchesMaxPrice && matchesRisk;
+            };
+
+            var filtered = _portfolio.FindAssets(filterPredicate);
 
             Assets = new ObservableCollection<Asset>(filtered);
         }
