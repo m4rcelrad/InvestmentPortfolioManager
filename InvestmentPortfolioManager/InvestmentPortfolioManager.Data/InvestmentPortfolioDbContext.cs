@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using InvestmentPortfolioManager.Core.Models;
-{
-    
-}
 
 namespace InvestmentPortfolioManager.Data
 {
@@ -16,16 +9,21 @@ namespace InvestmentPortfolioManager.Data
         public DbSet<InvestmentPortfolio> Portfolios { get; set; }
         public DbSet<Asset> Assets { get; set; }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(
+                @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=InvestmentPortfolioDb;Integrated Security=True");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Asset>()
-                .Map<Stock>(m => m.Requires("AssetType").HasValue("Stock"))
-                .Map<Bond>(m => m.Requires("AssetType").HasValue("Bond"))
-                .Map<Cryptocurrency>(m => m.Requires("AssetType").HasValue("Cryptocurrency"))
-                .Map<RealEstate>(m => m.Requires("AssetType").HasValue("RealEstate"))
-                .Map<Commodity>(m => m.Requires("AssetType").HasValue("Commodity"));
-
-            base.OnModelCreating(modelBuilder);
+                .HasDiscriminator<string>("AssetType")
+                .HasValue<Stock>("Stock")
+                .HasValue<Bond>("Bond")
+                .HasValue<Cryptocurrency>("Cryptocurrency")
+                .HasValue<RealEstate>("RealEstate")
+                .HasValue<Commodity>("Commodity");
         }
     }
 }

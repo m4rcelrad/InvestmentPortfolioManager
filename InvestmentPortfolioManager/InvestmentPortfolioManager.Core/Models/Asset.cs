@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
@@ -36,6 +37,7 @@ namespace InvestmentPortfolioManager.Core.Models
     [XmlInclude(typeof(Commodity))]
     public abstract class Asset : IAsset, IComparable<Asset>, ICloneable, INotifyPropertyChanged, IEquatable<Asset>
     {
+
         public Guid InvestmentPortfolioId { get; set; }
         [XmlIgnore]
         public virtual InvestmentPortfolio? InvestmentPortfolio { get; set; }
@@ -52,7 +54,8 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public virtual bool IsMergeable => true;
 
-        public Guid Asset_id { get; set; } = Guid.NewGuid();
+
+        [Key] public Guid Asset_id { get; set; } = Guid.NewGuid();
 
         public double PurchasePrice { get; set; }
         public double Volatility { get; set; }

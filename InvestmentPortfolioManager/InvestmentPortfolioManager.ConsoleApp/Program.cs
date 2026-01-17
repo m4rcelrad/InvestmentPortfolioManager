@@ -105,7 +105,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
             Console.WriteLine($"\n[INFO] Starting {days}-day market simulation starting from {simulationStart:d}");
             SimulationStart(portfolio, simulationStart, days);
 
-            Console.WriteLine("\n==================================================");
+            /*Console.WriteLine("\n==================================================");
             Console.WriteLine("    GROUPED PORTFOLIO PERFORMANCE");
             Console.WriteLine("==================================================");
             PrintGroupedSummary(portfolio);
@@ -118,7 +118,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
             foreach (var asset in expensiveAssets)
             {
                 Console.WriteLine($"   -> FOUND: {asset.AssetSymbol} worth {asset.CurrentPrice:C2}");
-            }
+            }*/
 
             Console.WriteLine("\n\n==================================================");
             Console.WriteLine("        TEST KLONOWANIA (DEEP COPY & GUID)");
@@ -259,5 +259,7 @@ namespace InvestmentPortfolioManager.ConsoleApp
             Console.ResetColor();
             Console.WriteLine();
         }
+
+
     }
 }

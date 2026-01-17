@@ -1,47 +1,73 @@
-﻿using InvestmentPortfolioManager.Core.Interfaces;
-using InvestmentPortfolioManager.Core;
+﻿using InvestmentPortfolioManager.Core;
+using InvestmentPortfolioManager.Core.Enums;
+using InvestmentPortfolioManager.Core.Interfaces;
 using InvestmentPortfolioManager.Core.Models;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using InvestmentPortfolioManager.Core.Enums;
-
 
 
 namespace InvestmentPortfolioManager.Data
 {
     public class SqlDatabaseService : IDataService
     {
-        public List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment)
+        public void SavePortfolios(List<InvestmentPortfolio> portfolios)
         {
-            throw new NotImplementedException();
+            using var db = new InvestmentPortfolioDbContext();
+
+            foreach (var portfolio in portfolios)
+            {
+                db.Portfolios.Update(portfolio);
+            }
+
+            db.SaveChanges();
         }
 
         public List<InvestmentPortfolio> LoadAllPortfolios()
         {
-            using (var db = new InvestmentPortfolioDbContext())
-            {
-                Console.WriteLine("Ładowanie portfeli z bazy danych...");
-                var portfolios = db.Portfolios
-                    .Include("Assets")
-                    .ToList();
+            using var db = new InvestmentPortfolioDbContext();
 
-                Console.WriteLine($"Załadowano {portfolios.Count} portfeli z bazy danych.");
-                return portfolios;
-            }
+            return db.Portfolios
+                .Include(p => p.Assets)
+                .ToList();
         }
 
-        public void SavePortfolios(List<InvestmentPortfolio> portfolios)
+        public List<Asset> GetFilteredAssets(
+            InvestmentPortfolio portfolio,
+            double? minPrice,
+            double? maxPrice,
+            RiskEnum? riskLevel,
+            string? nameFragment)
         {
-            using (var db = new InvestmentPortfolioDbContext())
-            {
-                Console.WriteLine("Przygotowywanie portfeli do zapisania do bazy danych...");
-                db.Portfolios.AddRange(portfolios);
-                db.SaveChanges();
-                Console.WriteLine("Portfele zostały zapisane do bazy danych.");
-            }
+            using var db = new InvestmentPortfolioDbContext();
+
+            var query = db.Assets
+                .Where(a => a.InvestmentPortfolioId == portfolio.InvestmentPortfolioId)
+                .AsQueryable();
+
+            if (minPrice.HasValue)
+                query = query.Where(a => a.CurrentPrice >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(a => a.CurrentPrice <= maxPrice.Value);
+
+            if (!string.IsNullOrWhiteSpace(nameFragment))
+                query = query.Where(a =>
+                    a.AssetName.Contains(nameFragment) ||
+                    a.AssetSymbol.Contains(nameFragment));
+
+            var assets = query.ToList();
+
+            if (riskLevel.HasValue)
+                assets = assets
+                    .Where(a => a.GetRiskAssessment() == riskLevel.Value)
+                    .ToList();
+
+            return assets;
         }
     }
 }
+
