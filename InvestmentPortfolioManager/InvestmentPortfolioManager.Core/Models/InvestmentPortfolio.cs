@@ -36,7 +36,7 @@ namespace InvestmentPortfolioManager.Core.Models
                 owner = value;
             }
         }
-        
+
         [XmlIgnore]
         public Dictionary<string, LiveAssetSummary> PortfolioSummaries { get; } = [];
 
@@ -218,5 +218,12 @@ namespace InvestmentPortfolioManager.Core.Models
 
             return Assets.Sum(asset => (asset.CurrentPrice - asset.PurchasePrice) * asset.Quantity);
         }
+
+        public IEnumerable<Asset> FindAssets(Func<Asset, bool> predicate)
+        {
+            ArgumentNullException.ThrowIfNull(predicate);
+            return Assets.Where(predicate);
+        }
+
     }
 }

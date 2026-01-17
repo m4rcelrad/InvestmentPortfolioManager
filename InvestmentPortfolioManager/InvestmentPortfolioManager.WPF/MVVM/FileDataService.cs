@@ -85,30 +85,5 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             return portfolios;
         }
 
-        public List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment)
-        {
-            if (portfolio == null || portfolio.Assets == null)
-                return new List<Asset>();
-
-            var query = portfolio.Assets.AsEnumerable();
-
-            if (minPrice.HasValue)
-                query = query.Where(a => a.CurrentPrice >= minPrice.Value);
-
-            if (maxPrice.HasValue)
-                query = query.Where(a => a.CurrentPrice <= maxPrice.Value);
-
-            if (riskLevel.HasValue)
-                query = query.Where(a => a.GetRiskAssessment() == riskLevel.Value);
-
-            if (!string.IsNullOrWhiteSpace(nameFragment))
-            {
-                query = query.Where(a =>
-                    a.AssetName.Contains(nameFragment, StringComparison.OrdinalIgnoreCase) ||
-                    a.AssetSymbol.Contains(nameFragment, StringComparison.OrdinalIgnoreCase));
-            }
-
-            return query.ToList();
-        }
     }
 }
