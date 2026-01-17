@@ -288,10 +288,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
             AllPortfolios = new ObservableCollection<InvestmentPortfolio>(loadedPortfolios);
 
-            _selectedPortfolio = AllPortfolios.First();
-
-            DashboardVM = new DashboardViewModel(_selectedPortfolio);
-            PortfolioVM = new PortfolioViewModel(_selectedPortfolio);
+            var initialPortfolio = AllPortfolios.First();
+            DashboardVM = new DashboardViewModel(initialPortfolio);
+            PortfolioVM = new PortfolioViewModel(initialPortfolio);
+            SelectedPortfolio = initialPortfolio;
 
             _currentView = DashboardVM;
             CurrentView = DashboardVM;
