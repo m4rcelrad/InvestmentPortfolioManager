@@ -4,80 +4,70 @@ using InvestmentPortfolioManager.Core.Interfaces;
 using InvestmentPortfolioManager.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Migrations;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 
 
 namespace InvestmentPortfolioManager.Data
 {
     public class SqlDatabaseService : IDataService
     {
-        public List<Asset> GetFilteredAssets(InvestmentPortfolio portfolio, double? minPrice, double? maxPrice, RiskEnum? riskLevel, string? nameFragment)
+        public void SavePortfolios(List<InvestmentPortfolio> portfolios)
         {
-            if (portfolio == null)
-                throw new ArgumentNullException(nameof(portfolio));
+            using var db = new InvestmentPortfolioDbContext();
 
-            using (var db = new InvestmentPortfolioDbContext())
+            foreach (var portfolio in portfolios)
             {
-                // aktywa z bazy danych bez poziomu ryzyka (to co da się przefiltrować w SQL)
-                var query = db.Portfolios
-                    .Where(p => p.InvestmentPortfolioId == portfolio.InvestmentPortfolioId)
-                    .SelectMany(p => p.Assets);
-
-                if (minPrice.HasValue)
-                    query = query.Where(a => a.CurrentPrice >= minPrice.Value);
-
-                if (maxPrice.HasValue)
-                    query = query.Where(a => a.CurrentPrice <= maxPrice.Value);
-
-                if (!string.IsNullOrWhiteSpace(nameFragment))
-                    query = query.Where(a =>
-                        a.AssetName.Contains(nameFragment) ||
-                        a.AssetSymbol.Contains(nameFragment));
-
-                // przejscie do pamięci, bo ryzyko trzeba filtrować tam - osobna metoda GetRiskAssessment()
-                var assets = query.ToList();
-
-                if (riskLevel.HasValue)
-                    assets = assets
-                        .Where(a => a.GetRiskAssessment() == riskLevel.Value)
-                        .ToList();
-
-                return assets;
+                db.Portfolios.Update(portfolio);
             }
+
+            db.SaveChanges();
         }
 
         public List<InvestmentPortfolio> LoadAllPortfolios()
         {
-            using (var db = new InvestmentPortfolioDbContext())
-            {
-                Console.WriteLine("Ładowanie portfeli z bazy danych...");
-                var portfolios = db.Portfolios
-                    .Include("Assets")
-                    .ToList();
+            using var db = new InvestmentPortfolioDbContext();
 
-                Console.WriteLine($"Załadowano {portfolios.Count} portfeli z bazy danych.");
-                return portfolios;
-            }
+            return db.Portfolios
+                .Include(p => p.Assets)
+                .ToList();
         }
 
-        public void SavePortfolios(List<InvestmentPortfolio> portfolios)
+        public List<Asset> GetFilteredAssets(
+            InvestmentPortfolio portfolio,
+            double? minPrice,
+            double? maxPrice,
+            RiskEnum? riskLevel,
+            string? nameFragment)
         {
-            Console.WriteLine("Zapisywanie portfeli do bazy danych...");
-            using (var db = new InvestmentPortfolioDbContext())
-            {
-                foreach (var portfolio in portfolios)
-                {
-                    db.Portfolios.AddOrUpdate(portfolio);
-                }
+            using var db = new InvestmentPortfolioDbContext();
 
-                db.SaveChanges();
-            }
+            var query = db.Assets
+                .Where(a => a.InvestmentPortfolioId == portfolio.InvestmentPortfolioId)
+                .AsQueryable();
 
-            Console.WriteLine("Portfele zostały zapisane do bazy danych.");
+            if (minPrice.HasValue)
+                query = query.Where(a => a.CurrentPrice >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(a => a.CurrentPrice <= maxPrice.Value);
+
+            if (!string.IsNullOrWhiteSpace(nameFragment))
+                query = query.Where(a =>
+                    a.AssetName.Contains(nameFragment) ||
+                    a.AssetSymbol.Contains(nameFragment));
+
+            var assets = query.ToList();
+
+            if (riskLevel.HasValue)
+                assets = assets
+                    .Where(a => a.GetRiskAssessment() == riskLevel.Value)
+                    .ToList();
+
+            return assets;
         }
     }
 }
+
