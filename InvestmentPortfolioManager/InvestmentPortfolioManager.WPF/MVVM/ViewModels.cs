@@ -1,5 +1,6 @@
 ﻿using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Models;
+using InvestmentPortfolioManager.Data;
 using InvestmentPortfolioManager.WPF.Views;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
     public class PortfolioViewModel : ViewModelBase
     {
-        private readonly FileDataService _dataService;
+        private readonly SqlDatabaseService _dataService;
 
         private InvestmentPortfolio? _portfolio;
 
@@ -79,7 +80,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
         public PortfolioViewModel(InvestmentPortfolio portfolio)
         {
-            _dataService = new FileDataService();
+            _dataService = new SqlDatabaseService();
             _portfolio = portfolio;
 
             UpdatePortfolio(portfolio);
@@ -187,7 +188,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
     public class MainViewModel : ViewModelBase
     {
-        private readonly FileDataService _dataService;
+        private readonly SqlDatabaseService _dataService;
         private object _currentView;
 
         private DispatcherTimer _simulationTimer;
@@ -236,7 +237,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
         public MainViewModel()
         {
-            _dataService = new FileDataService();
+            _dataService = new SqlDatabaseService();
 
             _simulationTimer = new DispatcherTimer();
             InitializeSimulation();

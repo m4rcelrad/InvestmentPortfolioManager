@@ -20,11 +20,30 @@ namespace InvestmentPortfolioManager.Data
 
             foreach (var portfolio in portfolios)
             {
-                db.Portfolios.Update(portfolio);
+                foreach (var asset in portfolio.Assets)
+                {
+                    asset.InvestmentPortfolioId = portfolio.InvestmentPortfolioId;
+                }
+
+                var exists = db.Portfolios
+                    .AsNoTracking()
+                    .Any(p => p.InvestmentPortfolioId == portfolio.InvestmentPortfolioId);
+
+                if (!exists)
+                {
+                    // INSERT
+                    db.Portfolios.Add(portfolio);
+                }
+                else
+                {
+                    // UPDATE
+                    db.Portfolios.Update(portfolio);
+                }
             }
 
             db.SaveChanges();
         }
+
 
         public List<InvestmentPortfolio> LoadAllPortfolios()
         {
@@ -35,39 +54,6 @@ namespace InvestmentPortfolioManager.Data
                 .ToList();
         }
 
-        public List<Asset> GetFilteredAssets(
-            InvestmentPortfolio portfolio,
-            double? minPrice,
-            double? maxPrice,
-            RiskEnum? riskLevel,
-            string? nameFragment)
-        {
-            using var db = new InvestmentPortfolioDbContext();
-
-            var query = db.Assets
-                .Where(a => a.InvestmentPortfolioId == portfolio.InvestmentPortfolioId)
-                .AsQueryable();
-
-            if (minPrice.HasValue)
-                query = query.Where(a => a.CurrentPrice >= minPrice.Value);
-
-            if (maxPrice.HasValue)
-                query = query.Where(a => a.CurrentPrice <= maxPrice.Value);
-
-            if (!string.IsNullOrWhiteSpace(nameFragment))
-                query = query.Where(a =>
-                    a.AssetName.Contains(nameFragment) ||
-                    a.AssetSymbol.Contains(nameFragment));
-
-            var assets = query.ToList();
-
-            if (riskLevel.HasValue)
-                assets = assets
-                    .Where(a => a.GetRiskAssessment() == riskLevel.Value)
-                    .ToList();
-
-            return assets;
-        }
     }
 }
 

@@ -1,7 +1,9 @@
 ﻿using InvestmentPortfolioManager.Core;
 using InvestmentPortfolioManager.Core.Enums;
 using InvestmentPortfolioManager.Core.Exceptions;
+using InvestmentPortfolioManager.Core.Interfaces;
 using InvestmentPortfolioManager.Core.Models;
+using InvestmentPortfolioManager.Data;
 using System.Globalization;
 
 namespace InvestmentPortfolioManager.ConsoleApp
@@ -20,6 +22,9 @@ namespace InvestmentPortfolioManager.ConsoleApp
 
             InvestmentPortfolio portfolio = new();
 
+            IDataService dataService = new SqlDatabaseService();
+
+
             try
             {
                 portfolio.Owner = "Warren Buffet";
@@ -34,6 +39,14 @@ namespace InvestmentPortfolioManager.ConsoleApp
             try
             {
                 Console.WriteLine("[INFO] Adding initial assets...");
+
+                Console.WriteLine("\n================ DB TEST 1: SAVE ================");
+                Console.WriteLine("[DB] Saving portfolio to database...");
+
+                dataService.SavePortfolios(new List<InvestmentPortfolio> { portfolio });
+
+                Console.WriteLine("[DB] Portfolio saved successfully.");
+
 
                 var stock = new Stock("Apple Inc.", "AAPL", 10, 150.0);
                 portfolio.AddNewAsset(stock);
