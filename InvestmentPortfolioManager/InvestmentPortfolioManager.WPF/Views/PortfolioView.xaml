@@ -85,6 +85,14 @@
                     </Button>
 
                 </StackPanel>
+
+                <Rectangle Width="1" Fill="#E0E0E0" Margin="15,5"/>
+
+                <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
+                    <TextBlock Text="Set Alert Price:" Foreground="Gray" FontSize="12" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding SelectedAsset.LowPriceThreshold, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Width="100" Padding="5" ToolTip="Select an asset in the list to edit its alert threshold"/>
+                </StackPanel>
+                
             </WrapPanel>
         </Border>
 
@@ -156,6 +164,11 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="Alert Price" 
+                    Binding="{Binding LowPriceThreshold, StringFormat=C2, TargetNullValue='-'}" 
+                    Width="Auto" MinWidth="100"
+                    IsReadOnly="True"/>
 
             </DataGrid.Columns>
         </DataGrid>

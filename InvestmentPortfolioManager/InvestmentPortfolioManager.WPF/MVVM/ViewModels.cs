@@ -31,7 +31,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             UpdatePortfolio(portfolio);
         }
 
-        public void UpdatePortfolio(InvestmentPortfolio newPortfolio)
+        public void UpdatePortfolio(InvestmentPortfolio? newPortfolio)
         {
             _portfolio = newPortfolio;
             RecalculateStats();
@@ -92,7 +92,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             RemoveAssetCommand = new RelayCommand(o => RemoveAsset());
         }
 
-        public void UpdatePortfolio(InvestmentPortfolio newPortfolio)
+        public void UpdatePortfolio(InvestmentPortfolio? newPortfolio)
         {
             _portfolio = newPortfolio;
             ClearFilters();
@@ -206,13 +206,56 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             {
                 if (_selectedPortfolio != value)
                 {
+                    if (_selectedPortfolio != null)
+                    {
+                        foreach (var asset in _selectedPortfolio.Assets)
+                        {
+                            asset.OnCriticalDrop -= HandleCriticalDrop;
+                        }
+                        _selectedPortfolio.Assets.CollectionChanged -= OnAssetsCollectionChanged;
+                    }
+
                     _selectedPortfolio = value;
                     OnPropertyChanged();
+
+                    if (_selectedPortfolio != null)
+                    {
+                        foreach (var asset in _selectedPortfolio.Assets)
+                        {
+                            asset.OnCriticalDrop += HandleCriticalDrop;
+                        }
+                        _selectedPortfolio.Assets.CollectionChanged += OnAssetsCollectionChanged;
+                    }
 
                     DashboardVM.UpdatePortfolio(_selectedPortfolio);
                     PortfolioVM.UpdatePortfolio(_selectedPortfolio);
                 }
             }
+        }
+
+        private void OnAssetsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (Asset asset in e.NewItems)
+                    asset.OnCriticalDrop += HandleCriticalDrop;
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (Asset asset in e.OldItems)
+                    asset.OnCriticalDrop -= HandleCriticalDrop;
+            }
+        }
+
+        private void HandleCriticalDrop(string symbol, double price, string message)
+        {
+            if (_isSimulationRunning)
+            {
+                ToggleSimulation();
+            }
+
+            MessageBox.Show(message, $"ALERT: {symbol}", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         public DashboardViewModel DashboardVM { get; set; } = null!;
@@ -246,10 +289,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
             AllPortfolios = new ObservableCollection<InvestmentPortfolio>(loadedPortfolios);
 
-            _selectedPortfolio = AllPortfolios.First();
-
-            DashboardVM = new DashboardViewModel(_selectedPortfolio);
-            PortfolioVM = new PortfolioViewModel(_selectedPortfolio);
+            var initialPortfolio = AllPortfolios.First();
+            DashboardVM = new DashboardViewModel(initialPortfolio);
+            PortfolioVM = new PortfolioViewModel(initialPortfolio);
+            SelectedPortfolio = initialPortfolio;
 
             _currentView = DashboardVM;
             CurrentView = DashboardVM;
