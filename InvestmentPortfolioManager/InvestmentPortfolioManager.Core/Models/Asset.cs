@@ -99,6 +99,9 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        [NotMapped]
+        public string AssetTypeName => this.GetType().Name;
+
         public double Quantity
         {
             get => quantity;

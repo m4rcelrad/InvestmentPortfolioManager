@@ -135,7 +135,7 @@
 
                 <DataGridTextColumn Header="Name" Binding="{Binding AssetName}" Width="*" MinWidth="150"/>
 
-                <DataGridTextColumn Header="Type" Binding="{Binding AssetType}" Width="Auto" MinWidth="100"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding AssetTypeName}" Width="Auto" MinWidth="100"/>
 
                 <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="Auto" MinWidth="80"/>
 
