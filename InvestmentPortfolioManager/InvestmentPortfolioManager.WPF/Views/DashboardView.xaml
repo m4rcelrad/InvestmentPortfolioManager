@@ -131,7 +131,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding Key}" Foreground="#34495E" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="{Binding Value, StringFormat=P1}" 
-                                           FontWeight="Bold" Foreground="#27AE60"/>
+                                           FontWeight="Bold" Foreground="#27AE60" Margin="10,0,0,0"/>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

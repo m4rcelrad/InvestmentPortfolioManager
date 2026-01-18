@@ -1,4 +1,5 @@
 ﻿using InvestmentPortfolioManager.Core.Enums;
+using InvestmentPortfolioManager.Core.Exceptions;
 using InvestmentPortfolioManager.Core.Models;
 using InvestmentPortfolioManager.Data;
 using InvestmentPortfolioManager.WPF.Views;
@@ -199,6 +200,27 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
         private InvestmentPortfolio _selectedPortfolio = null!;
 
+        public string PortfolioOwner
+        {
+            get => SelectedPortfolio?.Owner ?? string.Empty;
+            set
+            {
+                if (SelectedPortfolio == null) return;
+
+                try
+                {
+                    SelectedPortfolio.Owner = value;
+                }
+                catch (InvalidOwnerException ex)
+                {
+                    MessageBox.Show(ex.Message, "Błąd formatu", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    OnPropertyChanged();
+                    return;
+                }
+                OnPropertyChanged();
+            }
+        }
         public InvestmentPortfolio SelectedPortfolio
         {
             get => _selectedPortfolio;
@@ -217,6 +239,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
                     _selectedPortfolio = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(PortfolioOwner));
 
                     if (_selectedPortfolio != null)
                     {
