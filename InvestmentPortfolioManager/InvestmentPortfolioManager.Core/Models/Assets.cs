@@ -9,27 +9,40 @@ using System.Threading.Tasks;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
+    /// <summary>
+    /// Reprezentuje akcję spółki giełdowej.
+    /// </summary>
     public class Stock : Asset
     {
         public Stock() { }
         public Stock(string name, string symbol, double quantity, double price)
             : base(name, symbol, quantity, price, volatility: 0.02) { }
 
+        /// <inheritdoc />
         public override void SimulatePriceChange(DateTime simulationDate)
         {
             CurrentPrice = MarketSimulator.GenerateNewPrice(CurrentPrice, MeanReturn, Volatility);
             PriceHistory.Add(new PricePoint(simulationDate, CurrentPrice));
         }
 
+        /// <inheritdoc />
         public override RiskEnum GetRiskAssessment()
         {
             return RiskEnum.High;
         }
     }
 
+    /// <summary>
+    /// Reprezentuje obligację (instrument dłużny) o stałym oprocentowaniu.
+    /// </summary>
     public class Bond : Asset
     {
         private double rate;
+
+        /// <summary>
+        /// Roczna stopa oprocentowania (w formacie dziesiętnym, np. 0.05 dla 5%).
+        /// </summary>
+        /// <exception cref="BondRateException">Rzucany, gdy stopa jest ujemna.</exception>
         public double Rate
         {
             get => rate;
@@ -47,6 +60,10 @@ namespace InvestmentPortfolioManager.Core.Models
             Rate = rate;
         }
 
+        /// <summary>
+        /// Symuluje wzrost wartości obligacji poprzez naliczenie dziennych odsetek.
+        /// W przeciwieństwie do innych aktywów, cena obligacji rośnie deterministycznie.
+        /// </summary>
         public override void SimulatePriceChange(DateTime simulationDate)
         {
             double dailyInterest = CurrentPrice * (Rate / 365.0);
@@ -56,27 +73,39 @@ namespace InvestmentPortfolioManager.Core.Models
         }
 
     }
-    
+
+    /// <summary>
+    /// Reprezentuje kryptowalutę. Charakteryzuje się bardzo wysoką zmiennością i ryzykiem.
+    /// </summary>
     public class Cryptocurrency : Asset
     {
         public Cryptocurrency() { }
         public Cryptocurrency(string name, string symbol, double quantity, double price)
             : base(name, symbol, quantity, price, volatility: 0.08) { }
 
+        /// <inheritdoc />
         public override void SimulatePriceChange(DateTime simulationDate)
         {
             CurrentPrice = MarketSimulator.GenerateNewPrice(CurrentPrice, MeanReturn, Volatility);
             PriceHistory.Add(new PricePoint(simulationDate, CurrentPrice));
         }
 
+        /// <inheritdoc />
         public override RiskEnum GetRiskAssessment()
         {
             return RiskEnum.ExtremelyHigh;
         }
     }
 
+    /// <summary>
+    /// Reprezentuje nieruchomość.
+    /// Jest unikalna (nie można łączyć) i posiada szczegółowe dane adresowe.
+    /// </summary>
     public class RealEstate : Asset
     {
+        /// <summary>
+        /// Nieruchomości nie są łączone (każda jest unikalna), dlatego zawsze zwraca false.
+        /// </summary>
         public override bool IsMergeable => false;
             
         private string street = string.Empty;
@@ -155,6 +184,10 @@ namespace InvestmentPortfolioManager.Core.Models
             MeanReturn = 0.00015;
         }
 
+        /// <summary>
+        /// Symuluje zmianę wartości nieruchomości.
+        /// Aktualizacja następuje tylko pierwszego dnia miesiąca ze względu na niską płynność rynku.
+        /// </summary>
         public override void SimulatePriceChange(DateTime simulationDate)
         {
             if (simulationDate.Day == 1)
@@ -164,16 +197,24 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <inheritdoc />
         public override RiskEnum GetRiskAssessment()
         {
             return RiskEnum.Low;
         }
     }
 
+    /// <summary>
+    /// Reprezentuje towary i surowce (np. złoto, ropa, zboża).
+    /// </summary>
     public class Commodity : Asset
     {
         private UnitEnum unit;
 
+        /// <summary>
+        /// Jednostka miary towaru (np. Uncja, Baryłka).
+        /// </summary>
+        /// <exception cref="InvalidUnitException">Rzucany, gdy podana jednostka jest spoza definicji Enum.</exception>
         public UnitEnum Unit
         {
             get => unit;
@@ -196,12 +237,14 @@ namespace InvestmentPortfolioManager.Core.Models
             MeanReturn = 0.0003;
         }
 
+        /// <inheritdoc />
         public override void SimulatePriceChange(DateTime simulationDate)
         {
             CurrentPrice = MarketSimulator.GenerateNewPrice(CurrentPrice, MeanReturn, Volatility);
             PriceHistory.Add(new PricePoint(simulationDate, CurrentPrice));
         }
 
+        /// <inheritdoc />
         public override RiskEnum GetRiskAssessment()
         {
             return RiskEnum.Medium;

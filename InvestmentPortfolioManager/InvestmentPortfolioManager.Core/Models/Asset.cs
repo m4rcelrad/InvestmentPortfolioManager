@@ -16,7 +16,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
-
+    /// <summary>
+    /// Struktura reprezentująca cenę aktywa w konkretnym punkcie czasu (historia cen).
+    /// </summary>
     public struct PricePoint
     {
         public DateTime Date { get; set; }
@@ -29,8 +31,15 @@ namespace InvestmentPortfolioManager.Core.Models
         }
     }
 
+    /// <summary>
+    /// Delegat obsługujący zdarzenia zmiany ceny aktywa.
+    /// </summary>
     public delegate void AssetPriceChangedHandler(string symbol, double newPrice, string message);
 
+    /// <summary>
+    /// Abstrakcyjna klasa bazowa dla wszystkich instrumentów finansowych.
+    /// Zawiera wspólną logikę dla cen, ilości, walidacji oraz historii notowań.
+    /// </summary>  
     [XmlInclude(typeof(Stock))]
     [XmlInclude(typeof(Bond))]
     [XmlInclude(typeof(Cryptocurrency))]
@@ -45,7 +54,14 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        /// <summary>
+        /// Zdarzenie wywoływane przy każdej znaczącej zmianie ceny.
+        /// </summary>
         public event AssetPriceChangedHandler? OnPriceUpdate;
+
+        /// <summary>
+        /// Zdarzenie wywoływane, gdy cena spadnie poniżej zdefiniowanego progu <see cref="LowPriceThreshold"/>.
+        /// </summary>
         public event AssetPriceChangedHandler? OnCriticalDrop;
 
         private double quantity;
@@ -53,16 +69,34 @@ namespace InvestmentPortfolioManager.Core.Models
         private string assetName = string.Empty;
         private string assetSymbol = string.Empty;
 
+        /// <summary>
+        /// Określa, czy aktywa tego samego typu mogą być łączone w jedną pozycję (np. akcje tak, nieruchomości nie).
+        /// </summary>
         public virtual bool IsMergeable => true;
 
 
         [Key] public Guid Asset_id { get; set; } = Guid.NewGuid();
 
+        /// <summary>
+        /// Cena zakupu (używana do obliczania zysku/straty).
+        /// </summary>
         public double PurchasePrice { get; set; }
+
+        /// <summary>
+        /// Współczynnik zmienności ceny (używany w symulacjach).
+        /// </summary>
         public double Volatility { get; set; }
+
+        /// <summary>
+        /// Średni oczekiwany zwrot (używany w symulacjach).
+        /// </summary>
         public double MeanReturn { get; set; } = 0.0002;
 
         private double? lowPriceThreshold;
+
+        /// <summary>
+        /// Próg ceny, poniżej którego zostanie wywołany alarm (event <see cref="OnCriticalDrop"/>).
+        /// </summary>
         public double? LowPriceThreshold
         {
             get => lowPriceThreshold;
@@ -102,6 +136,10 @@ namespace InvestmentPortfolioManager.Core.Models
         [NotMapped]
         public string AssetTypeName => this.GetType().Name;
 
+        /// <summary>
+        /// Ilość posiadanych jednostek aktywa.
+        /// </summary>
+        /// <exception cref="InvalidQuantityException">Rzucany, gdy wartość jest mniejsza lub równa 0.</exception>
         public double Quantity
         {
             get => quantity;
@@ -115,6 +153,11 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <summary>
+        /// Aktualna cena rynkowa pojedynczej jednostki.
+        /// Zmiana tej właściwości może wywołać zdarzenia <see cref="OnPriceUpdate"/> oraz <see cref="OnCriticalDrop"/>.
+        /// </summary>
+        /// <exception cref="InvalidPriceException">Rzucany, gdy cena jest ujemna.</exception>
         public double CurrentPrice
         {
             get => currentPrice;
@@ -147,6 +190,9 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <summary>
+        /// Całkowita wartość pozycji (Ilość * Cena Aktualna).
+        /// </summary>
         public double Value => Quantity * CurrentPrice;
         [XmlIgnore]
         public double ValueChange => (CurrentPrice - PurchasePrice) * Quantity;
@@ -172,10 +218,15 @@ namespace InvestmentPortfolioManager.Core.Models
 
         public int CompareTo(Asset? other) => other == null ? 1 : Value.CompareTo(other.Value);
 
+        /// <inheritdoc />
         public virtual RiskEnum GetRiskAssessment() => RiskEnum.Medium;
 
+        /// <inheritdoc />
         public abstract void SimulatePriceChange(DateTime simulationDate);
 
+        /// <summary>
+        /// Tworzy głęboką kopię obiektu aktywa z nowym ID i wyczyszczonym powiązaniem do portfela.
+        /// </summary>
         public object Clone()
         {
             var clone = (Asset)this.MemberwiseClone();
@@ -205,6 +256,9 @@ namespace InvestmentPortfolioManager.Core.Models
             return Asset_id.GetHashCode();
         }
 
+        /// <summary>
+        /// Ręcznie aktualizuje cenę aktywa i sprawdza progi alarmowe.
+        /// </summary>
         public void UpdatePrice(double newPrice)
         {
             CurrentPrice = newPrice;
