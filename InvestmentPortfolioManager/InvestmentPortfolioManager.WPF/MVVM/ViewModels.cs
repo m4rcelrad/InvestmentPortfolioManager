@@ -4,6 +4,7 @@ using InvestmentPortfolioManager.Core.Models;
 using InvestmentPortfolioManager.Data;
 using InvestmentPortfolioManager.WPF.Views;
 using System;
+using InvestmentPortfolioManager.Core.Comparers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -112,6 +113,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         /// <summary>Polecenie wyzwalające proces filtrowania kolekcji aktywów.</summary>   
         public ICommand FilterCommand { get; }
 
+        public ICommand SortByRiskCommand { get; }
         /// <summary>Polecenie resetujące wszystkie filtry do wartości domyślnych.</summary>
         public ICommand ClearFiltersCommand { get; }
 
@@ -128,6 +130,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             UpdatePortfolio(portfolio);
 
             FilterCommand = new RelayCommand(o => ApplyFilters());
+            SortByRiskCommand = new RelayCommand(o => SortByRisk());
             ClearFiltersCommand = new RelayCommand(o => ClearFilters());
 
             AddAssetCommand = new RelayCommand(o => AddAsset());
@@ -251,7 +254,19 @@ namespace InvestmentPortfolioManager.WPF.MVVM
                 ApplyFilters();
             }
         }
+        private void SortByRisk()
+        {
+            if (Assets == null || !Assets.Any()) return;
 
+            // Pobieramy obecne aktywa do listy
+            var assetList = Assets.ToList();
+
+            // UŻYCIE KOMPARATORA: To jest kluczowy moment dla Twojego sprawozdania
+            assetList.Sort(new AssetRiskComparer());
+
+            // Odświeżamy listę w GUI
+            Assets = new ObservableCollection<Asset>(assetList);
+        }
     }
 
     /// <summary>

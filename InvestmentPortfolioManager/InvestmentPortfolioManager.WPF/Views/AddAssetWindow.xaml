@@ -33,6 +33,16 @@
                     <TextBox x:Name="QuantityBox" Margin="0,5,0,15" Padding="5"/>
                 </StackPanel>
 
+                <StackPanel x:Name="CommodityFields" Visibility="Collapsed">
+                    <TextBlock Text="Unit:" FontWeight="SemiBold"/>
+                    <ComboBox x:Name="UnitComboBox" Margin="0,5,0,15" Padding="5" SelectedIndex="0">
+                        <ComboBoxItem Content="Ounce"/>
+                        <ComboBoxItem Content="Gram"/>
+                        <ComboBoxItem Content="Kilogram"/>
+                        <ComboBoxItem Content="Barrel"/>
+                    </ComboBox>
+                </StackPanel>
+
                 <StackPanel x:Name="RealEstateFields" Visibility="Collapsed">
                     <TextBlock Text="Street:" FontWeight="SemiBold"/>
                     <TextBox x:Name="StreetBox" Margin="0,5,0,10" Padding="5"/>

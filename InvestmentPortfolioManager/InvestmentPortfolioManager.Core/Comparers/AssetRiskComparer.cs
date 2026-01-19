@@ -11,7 +11,7 @@ namespace InvestmentPortfolioManager.Core.Comparers
     /// Komparator służący do porównywania aktywów na podstawie ich oceny ryzyka.
     /// Umożliwia sortowanie list aktywów od najmniej do najbardziej ryzykownych.
     /// </summary>
-    internal class AssetRiskComparer : IComparer<Asset>
+    public class AssetRiskComparer : IComparer<Asset>
     {
         /// <summary>
         /// Porównuje dwa obiekty typu <see cref="Asset"/> na podstawie ich poziomu ryzyka.

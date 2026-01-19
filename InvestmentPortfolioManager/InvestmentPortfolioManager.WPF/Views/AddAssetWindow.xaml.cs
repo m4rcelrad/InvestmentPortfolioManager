@@ -36,7 +36,8 @@ namespace InvestmentPortfolioManager.WPF.Views
         /// <param name="e">Dane zdarzenia zmiany wyboru.</param>
         private void TypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (RealEstateFields == null || StandardAssetFields == null) return;
+            // Sprawdzamy czy kontrolki są już załadowane
+            if (RealEstateFields == null || StandardAssetFields == null || CommodityFields == null) return;
 
             string? type = (TypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
@@ -44,11 +45,15 @@ namespace InvestmentPortfolioManager.WPF.Views
             {
                 RealEstateFields.Visibility = Visibility.Visible;
                 StandardAssetFields.Visibility = Visibility.Collapsed;
+                CommodityFields.Visibility = Visibility.Collapsed;
             }
             else
             {
                 RealEstateFields.Visibility = Visibility.Collapsed;
                 StandardAssetFields.Visibility = Visibility.Visible;
+
+                // Pokaż pole jednostki tylko jeśli wybrano Commodity
+                CommodityFields.Visibility = (type == "Commodity") ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -106,7 +111,16 @@ namespace InvestmentPortfolioManager.WPF.Views
                             CreatedAsset = new Cryptocurrency(name, symbol, quantity, price);
                             break;
                         case "Commodity":
-                            CreatedAsset = new Commodity(name, symbol, quantity, price, UnitEnum.Ounce);
+                            // Pobieramy tekst z wybranej pozycji w ComboBox
+                            string unitString = (UnitComboBox.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Ounce";
+
+                            // Zamieniamy tekst na odpowiednią wartość z Twojego Enuma
+                            if (!Enum.TryParse(unitString, out UnitEnum selectedUnit))
+                            {
+                                selectedUnit = UnitEnum.Ounce; // Wartość domyślna
+                            }
+
+                            CreatedAsset = new Commodity(name, symbol, quantity, price, selectedUnit);
                             break;
                         default:
                             CreatedAsset = new Stock(name, symbol, quantity, price);
