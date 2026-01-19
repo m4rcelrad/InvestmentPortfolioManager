@@ -8,8 +8,18 @@ using System.Linq;
 
 namespace InvestmentPortfolioManager.Data
 {
+    /// <summary>
+    /// Implementacja serwisu danych wykorzystująca bazę SQL Server (via Entity Framework Core).
+    /// Odpowiada za trwałość danych portfela i jego aktywów.
+    /// </summary>
     public class SqlDatabaseService : IDataService
     {
+        /// <summary>
+        /// Zapisuje listę portfeli do bazy danych. 
+        /// Metoda synchronizuje stan obiektów w pamięci z bazą: dodaje nowe, aktualizuje istniejące 
+        /// oraz usuwa aktywa, które zostały usunięte w interfejsie użytkownika.
+        /// </summary>
+        /// <param name="portfolios">Lista portfeli do zsynchronizowania z bazą.</param>
         public void SavePortfolios(List<InvestmentPortfolio> portfolios)
         {
             using var db = new InvestmentPortfolioDbContext();
@@ -65,6 +75,11 @@ namespace InvestmentPortfolioManager.Data
             db.SaveChanges();
         }
 
+        /// <summary>
+        /// Pobiera wszystkie portfele z bazy danych wraz z przypisanymi do nich aktywami.
+        /// Jeśli baza jest pusta, generuje dane testowe (Mock Data).
+        /// </summary>
+        /// <returns>Lista portfeli załadowana z bazy SQL.</returns>
         public List<InvestmentPortfolio> LoadAllPortfolios()
         {
             using var db = new InvestmentPortfolioDbContext();
@@ -83,6 +98,9 @@ namespace InvestmentPortfolioManager.Data
             return portfolios;
         }
 
+        /// <summary>
+        /// Tworzy startowy zestaw danych dla celów prezentacyjnych i testowych.
+        /// </summary>
         private List<InvestmentPortfolio> GenerateMockData()
         {
             var portfolios = new List<InvestmentPortfolio>();

@@ -42,7 +42,7 @@ namespace InvestmentPortfolioManager.Core.Models
         /// <summary>
         /// Roczna stopa oprocentowania (w formacie dziesiętnym, np. 0.05 dla 5%).
         /// </summary>
-        /// <exception cref="BondRateException">Rzucany, gdy stopa jest ujemna.</exception>
+        /// <exception cref="BondRateException">Wyrzucany, gdy stopa jest ujemna.</exception>
         public double Rate
         {
             get => rate;
@@ -214,7 +214,7 @@ namespace InvestmentPortfolioManager.Core.Models
         /// <summary>
         /// Jednostka miary towaru (np. Uncja, Baryłka).
         /// </summary>
-        /// <exception cref="InvalidUnitException">Rzucany, gdy podana jednostka jest spoza definicji Enum.</exception>
+        /// <exception cref="InvalidUnitException">Wyrzucany, gdy podana jednostka jest spoza definicji Enum.</exception>
         public UnitEnum Unit
         {
             get => unit;

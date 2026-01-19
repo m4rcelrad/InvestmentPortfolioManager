@@ -3,9 +3,16 @@ using InvestmentPortfolioManager.Core.Models;
 
 namespace InvestmentPortfolioManager.Tests
 {
+    /// <summary>
+    /// Testy weryfikujące poprawność działania mechanizmu zdarzeń (Events) i delegatów.
+    /// </summary>
     [TestClass]
     public class EventTests
     {
+        /// <summary>
+        /// Sprawdza, czy zdarzenie <see cref="Asset.OnCriticalDrop"/> jest wyzwalane,
+        /// gdy cena spadnie poniżej ustalonego progu bezpieczeństwa.
+        /// </summary>
         [TestMethod]
         public void OnCriticalDrop_ShouldFire_WhenPriceDropsBelowThreshold()
         {

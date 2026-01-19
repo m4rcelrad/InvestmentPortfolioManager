@@ -13,14 +13,30 @@ using System.Xml.Serialization;
 
 namespace InvestmentPortfolioManager.Core.Models
 {
+    /// <summary>
+    /// Reprezentuje portfel inwestycyjny użytkownika. 
+    /// Zarządza listą aktywów, oblicza statystyki i koordynuje aktualizacje cen rynkowych.
+    /// </summary>
     public class InvestmentPortfolio : ICloneable
     {
+        /// <summary>Unikalny identyfikator portfela.</summary>
         [Key] public Guid InvestmentPortfolioId { get; set; } = Guid.NewGuid();
+
+        /// <summary>Kolekcja aktywów przypisanych do tego portfela.</summary>
         public virtual ObservableCollection<Asset> Assets { get; set; } = [];
 
         string owner = string.Empty;
+
+        /// <summary>Nazwa własna portfela (np. "Emerytura", "Spekulacyjny").</summary>
         public string Name { get; set; } = "New portfolio";
 
+
+        /// <summary>
+        /// Imię i nazwisko właściciela portfela.
+        /// </summary>
+        /// <exception cref="InvalidOwnerException">
+        /// Wyrzucany, gdy imię i nazwisko nie spełnia wymagań formatu (np. brak wielkich liter, niedozwolone znaki).
+        /// </exception>
         public string Owner
         {
             get => owner;
@@ -37,11 +53,19 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <summary>
+        /// Słownik przechowujący zagregowane podsumowania dla grup aktywów (np. suma wszystkich akcji Apple).
+        /// Kluczem jest symbol aktywa lub unikalny identyfikator dla aktywów niełączonych.
+        /// </summary>
         [XmlIgnore]
         public Dictionary<string, LiveAssetSummary> PortfolioSummaries { get; } = [];
 
         public InvestmentPortfolio() { }
 
+        /// <summary>
+        /// Dodaje nowe aktywo do portfela i rejestruje subskrypcję zdarzeń zmiany ceny.
+        /// </summary>
+        /// <param name="asset">Obiekt aktywa do dodania.</param>
         public void AddNewAsset(Asset asset)
         {
             ArgumentNullException.ThrowIfNull(asset);
@@ -51,6 +75,11 @@ namespace InvestmentPortfolioManager.Core.Models
             UpdateSummary(asset);
         }
 
+        /// <summary>
+        /// Usuwa aktywo z portfela i wyrejestrowuje subskrypcję zdarzeń.
+        /// </summary>
+        /// <param name="asset">Obiekt aktywa do usunięcia.</param>
+        /// <returns>True, jeśli usunięcie powiodło się.</returns>
         public bool RemoveAsset(Asset asset)
         {
             if (Assets.Remove(asset))
@@ -62,6 +91,9 @@ namespace InvestmentPortfolioManager.Core.Models
             return false;
         }
 
+        /// <summary>
+        /// Obsługuje aktualizację podsumowań, gdy zmieni się cena lub ilość dowolnego aktywa w portfelu.
+        /// </summary>
         private void OnAssetPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender is Asset asset && (e.PropertyName == nameof(Asset.CurrentPrice) || e.PropertyName == nameof(Asset.Quantity)))
@@ -70,6 +102,10 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <summary>
+        /// Przelicza dane w <see cref="PortfolioSummaries"/> dla konkretnego aktywa.
+        /// Jeśli aktywo jest oznaczane jako <see cref="Asset.IsMergeable"/>, grupuje je z innymi o tym samym symbolu.
+        /// </summary>
         private void UpdateSummary(Asset asset)
         {
             if (asset.IsMergeable)
@@ -126,6 +162,7 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <summary>Usuwa aktywo na podstawie jego unikalnego identyfikatora <see cref="Guid"/>.</summary> 
         public bool RemoveAsset(Guid id)
         {
             Asset? toRemove = Assets.FirstOrDefault(x => x.Asset_id == id);
@@ -136,8 +173,14 @@ namespace InvestmentPortfolioManager.Core.Models
             return false;
         }
 
+        /// <summary>Oblicza całkowitą bieżącą wartość rynkową wszystkich aktywów w portfelu.</summary>
         public double CalculateSum() => Assets.Sum(x => x.Value);
 
+        /// <summary>
+        /// Przeprowadza symulację rynkową dla wszystkich aktywów w portfelu.
+        /// Grupuje aktywa według symbolu, aby zapewnić tę samą nową cenę dla takich samych instrumentów.
+        /// </summary>
+        /// <param name="simulationDate">Data wirtualna, dla której generowane są ceny.</param>
         public void UpdateMarketPrices(DateTime simulationDate)
         {
             var groupedAssets = Assets.GroupBy(asset =>
@@ -174,6 +217,10 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
+        /// <summary>
+        /// Oblicza procentową alokację portfela w podziale na typy aktywów (np. Akcje: 40%, Crypto: 60%).
+        /// </summary>
+        /// <returns>Słownik, gdzie kluczem jest nazwa typu, a wartością udział (0.0 - 1.0).</returns>
         public Dictionary<string, double> GetAssetAllocation()
         {
             double total = CalculateSum();
@@ -184,16 +231,19 @@ namespace InvestmentPortfolioManager.Core.Models
                 .ToDictionary(g => g.Key, g => g.Sum(a => a.Value) / total);
         }
 
+        /// <summary>Zwraca listę aktywów, które odnotowały największy procentowy wzrost od ceny zakupu.</summary>
         public IEnumerable<Asset> GetTopMovers(int count)
         {
             return Assets.OrderByDescending(a => (a.CurrentPrice - a.PurchasePrice) / a.PurchasePrice).Take(count);
         }
 
+        /// <inheritdoc cref="Clone(string)"/>
         public object Clone()
         {
             return this.Clone(this.Name + " - Clone");
         }
 
+        /// <summary>Tworzy głęboką kopię portfela wraz ze wszystkimi aktywami i nadaje mu nową nazwę.</summary>
         public object Clone(string newName)
         {
             var clone = new InvestmentPortfolio
@@ -212,6 +262,7 @@ namespace InvestmentPortfolioManager.Core.Models
             return clone;
         }
 
+        /// <summary>Oblicza całkowity zysk lub stratę portfela (suma zysków ze wszystkich aktywów).</summary>
         public double CalculateTotalProfit()
         {
             if (Assets == null || !Assets.Any()) return 0.0;
@@ -219,6 +270,8 @@ namespace InvestmentPortfolioManager.Core.Models
             return Assets.Sum(asset => (asset.CurrentPrice - asset.PurchasePrice) * asset.Quantity);
         }
 
+        /// <summary>Wyszukuje aktywa spełniające określone kryterium.</summary>
+        /// <param name="predicate">Funkcja filtrująca.</param>
         public IEnumerable<Asset> FindAssets(Func<Asset, bool> predicate)
         {
             ArgumentNullException.ThrowIfNull(predicate);

@@ -6,15 +6,34 @@ using System.Windows.Controls;
 
 namespace InvestmentPortfolioManager.WPF.Views
 {
+    /// <summary>
+    /// Logika interakcji dla okna dialogowego AddAssetWindow.xaml.
+    /// Okno służy do zbierania danych od użytkownika i tworzenia nowych instancji 
+    /// klas pochodnych typu <see cref="Asset"/>.
+    /// </summary>
     public partial class AddAssetWindow : Window
     {
+        /// <summary>
+        /// Przechowuje nowo utworzony obiekt aktywa. 
+        /// Właściwość ta jest odczytywana przez ViewModel po zamknięciu okna z wynikiem pozytywnym.
+        /// </summary>
         public Asset? CreatedAsset { get; private set; }
 
+        /// <summary>
+        /// Inicjalizuje nową instancję okna <see cref="AddAssetWindow"/>.
+        /// </summary>
         public AddAssetWindow()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Obsługuje zmianę wybranego typu aktywa w rozwijanej liście.
+        /// Dynamicznie przełącza widoczność paneli (<see cref="StandardAssetFields"/> vs <see cref="RealEstateFields"/>),
+        /// dostosowując formularz do wymagań konkretnego typu danych (np. adres dla nieruchomości).
+        /// </summary>
+        /// <param name="sender">Źródło zdarzenia (ComboBox).</param>
+        /// <param name="e">Dane zdarzenia zmiany wyboru.</param>
         private void TypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (RealEstateFields == null || StandardAssetFields == null) return;
@@ -33,6 +52,17 @@ namespace InvestmentPortfolioManager.WPF.Views
             }
         }
 
+        /// <summary>
+        /// Główna logika zatwierdzania formularza. 
+        /// Przeprowadza walidację danych wejściowych, parsuje wartości liczbowe 
+        /// i tworzy odpowiedni obiekt klasy (Stock, Bond, Cryptocurrency, Commodity lub RealEstate).
+        /// </summary>
+        /// <remarks>
+        /// W przypadku błędnych danych (puste pola, zły format liczb), metoda przechwytuje wyjątek 
+        /// i wyświetla komunikat błędu użytkownikowi, nie zamykając okna.
+        /// </remarks>
+        /// <param name="sender">Przycisk "Add".</param>
+        /// <param name="e">Argumenty zdarzenia.</param>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -93,6 +123,10 @@ namespace InvestmentPortfolioManager.WPF.Views
             }
         }
 
+        /// <summary>
+        /// Zamyka okno bez zapisywania zmian.
+        /// Ustawia <see cref="Window.DialogResult"/> na false.
+        /// </summary>
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;

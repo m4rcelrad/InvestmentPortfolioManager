@@ -14,17 +14,27 @@ using System.Windows.Threading;
 
 namespace InvestmentPortfolioManager.WPF.MVVM
 {
+    /// <summary>
+    /// Model widoku dla panelu kontrolnego (Dashboard).
+    /// Agreguje dane z portfela w celu wyświetlenia podsumowań finansowych i statystyk aktywów.
+    /// </summary>
     public class DashboardViewModel : ViewModelBase
     {
         private InvestmentPortfolio? _portfolio;
 
+        /// <summary>Pobiera całkowitą wartość rynkową aktualnego portfela.</summary>   
         public double TotalValue => _portfolio?.CalculateSum() ?? 0;
+
+        /// <summary>Pobiera całkowity zysk/stratę wygenerowaną przez portfel.</summary>
         public double TotalProfit => _portfolio?.CalculateTotalProfit() ?? 0;
 
+        /// <summary>Zwraca informację, czy portfel jest obecnie na plusie.</summary>
         public bool IsProfitPositive => TotalProfit >= 0;
 
+        /// <summary>Kolekcja aktywów o największych zmianach wartości (Top Movers).</summary>
         public ObservableCollection<Asset> TopMovers { get; set; } = [];
 
+        /// <summary>Słownik reprezentujący alokację kapitału (Typ aktywa -> Wartość).</summary>
         public Dictionary<string, double> Allocation { get; set; } = [];
 
         public DashboardViewModel(InvestmentPortfolio portfolio)
@@ -38,6 +48,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             RecalculateStats();
         }
 
+        /// <summary>
+        /// Odświeża wszystkie statystyki obliczeniowe i powiadamia widok o zmianach.
+        /// Wywoływane po każdej aktualizacji cen w symulacji.
+        /// </summary>
         public void RecalculateStats()
         {
             if (_portfolio == null) return;
@@ -55,30 +69,57 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         }
     }
 
+    /// <summary>
+    /// Model widoku odpowiedzialny za zarządzanie widokiem portfela inwestycyjnego.
+    /// Obsługuje wyświetlanie listy aktywów, zaawansowane filtrowanie, wyszukiwanie 
+    /// oraz interakcję z użytkownikiem w zakresie dodawania i usuwania składników portfela.
+    /// </summary>
     public class PortfolioViewModel : ViewModelBase
     {
+        /// <summary>Serwis odpowiedzialny za komunikację z bazą danych SQL.</summary>
         private readonly SqlDatabaseService _dataService;
 
+        /// <summary>Referencja do obecnie obsługiwanego modelu portfela.</summary>
         private InvestmentPortfolio? _portfolio;
 
         private ObservableCollection<Asset> _assets = [];
+
+        /// <summary>
+        /// Kolekcja aktywów wyświetlana w interfejsie użytkownika.
+        /// Automatycznie powiadamia widok o zmianie całej kolekcji.
+        /// </summary>
         public ObservableCollection<Asset> Assets
         {
             get => _assets;
             set { _assets = value; OnPropertyChanged(); }
         }
 
+        /// <summary>Tekst wprowadzony przez użytkownika w polu wyszukiwania (szuka po nazwie lub symbolu).</summary>
         public string SearchText { get; set; } = string.Empty;
 
+        /// <summary>Filtr minimalnej ceny aktywa. Jeśli null, filtr jest nieaktywny.</summary>
         public double? MinPriceFilter { get; set; }
+
+        /// <summary>Filtr maksymalnej ceny aktywa. Jeśli null, filtr jest nieaktywny.</summary>
         public double? MaxPriceFilter { get; set; }
+
+        /// <summary>Wybrany z listy rozwijanej poziom ryzyka jako kryterium filtrowania.</summary>
         public RiskEnum? SelectedRiskFilter { get; set; }
 
+        /// <summary>Pobiera listę wszystkich dostępnych poziomów ryzyka zdefiniowanych w <see cref="RiskEnum"/>.</summary>
         public IEnumerable<RiskEnum> RiskLevels => Enum.GetValues(typeof(RiskEnum)).Cast<RiskEnum>();
 
+        /// <summary>Polecenie wyzwalające proces filtrowania kolekcji aktywów.</summary>   
         public ICommand FilterCommand { get; }
+
+        /// <summary>Polecenie resetujące wszystkie filtry do wartości domyślnych.</summary>
         public ICommand ClearFiltersCommand { get; }
 
+        /// <summary>
+        /// Inicjalizuje nową instancję klasy <see cref="PortfolioViewModel"/>.
+        /// Konfiguruje serwisy oraz przypisuje akcje do odpowiednich komend.
+        /// </summary>
+        /// <param name="portfolio">Instancja portfela, która ma być zarządzana przez ten ViewModel.</param>
         public PortfolioViewModel(InvestmentPortfolio portfolio)
         {
             _dataService = new SqlDatabaseService();
@@ -93,12 +134,20 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             RemoveAssetCommand = new RelayCommand(o => RemoveAsset());
         }
 
+        /// <summary>
+        /// Aktualizuje powiązany portfel i resetuje widok filtrów.
+        /// </summary>
+        /// <param name="newPortfolio">Nowa instancja portfela do załadowania.</param>
         public void UpdatePortfolio(InvestmentPortfolio? newPortfolio)
         {
             _portfolio = newPortfolio;
             ClearFilters();
         }
 
+        /// <summary>
+        /// Przeprowadza filtrowanie kolekcji aktywów na podstawie wprowadzonych kryteriów.
+        /// Wykorzystuje wyrażenie lambda przekazywane do metody <see cref="InvestmentPortfolio.FindAssets"/>.
+        /// </summary>
         private void ApplyFilters()
         {
             if (_portfolio == null) return;
@@ -123,6 +172,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             Assets = new ObservableCollection<Asset>(filtered);
         }
 
+        /// <summary>
+        /// Czyści wszystkie parametry filtrowania i przywraca pełną listę aktywów z portfela.
+        /// </summary>
         private void ClearFilters()
         {
             SearchText = string.Empty;
@@ -141,6 +193,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
         }
 
+        /// <summary>
+        /// Wymusza odświeżenie widoku kolekcji. Przydatne przy aktualizacji cen przez symulację.
+        /// </summary>
         public void RefreshView()
         {
             if (Assets != null)
@@ -150,15 +205,24 @@ namespace InvestmentPortfolioManager.WPF.MVVM
         }
 
         private Asset? _selectedAsset;
+
+        /// <summary>Obecnie zaznaczone aktywo na liście w interfejsie użytkownika.</summary>   
         public Asset? SelectedAsset
         {
             get => _selectedAsset;
             set { _selectedAsset = value; OnPropertyChanged(); }
         }
 
+        /// <summary>Polecenie otwierające okno dodawania nowego aktywa.</summary>
         public ICommand AddAssetCommand { get; }
+
+        /// <summary>Polecenie usuwające zaznaczone aktywo z portfela.</summary>
         public ICommand RemoveAssetCommand { get; }
 
+        /// <summary>
+        /// Obsługuje proces dodawania nowego aktywa poprzez otwarcie okna <see cref="AddAssetWindow"/>.
+        /// Jeśli użytkownik potwierdzi wybór, aktywo jest dodawane do modelu portfela.
+        /// </summary>
         private void AddAsset()
         {
             if (_portfolio == null) return;
@@ -171,6 +235,9 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
         }
 
+        /// <summary>
+        /// Usuwa zaznaczone aktywo z portfela po uprzednim potwierdzeniu operacji przez użytkownika.
+        /// </summary>
         private void RemoveAsset()
         {
             if (_portfolio == null || SelectedAsset == null) return;
@@ -187,19 +254,34 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
     }
 
+    /// <summary>
+    /// Główny model widoku aplikacji (Shell ViewModel).
+    /// Zarządza nawigacją między widokami, koordynuje pracę podrzędnych modeli widoku (Dashboard i Portfolio)
+    /// oraz kontroluje silnik symulacji zmian cen rynkowych.
+    /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        /// <summary>Serwis dostępu do danych SQL.</summary>
         private readonly SqlDatabaseService _dataService;
+        /// <summary>Przechowuje aktualnie wyświetlany widok (ViewModel).</summary>
         private object _currentView;
 
+        /// <summary>Timer sterujący cykliczną aktualizacją cen w symulacji.</summary>
         private DispatcherTimer _simulationTimer;
+        /// <summary>Określa, czy symulacja rynkowa jest obecnie uruchomiona.</summary>
         private bool _isSimulationRunning;
+        /// <summary>Aktualna data wewnątrz symulacji.</summary>
         private DateTime _simulationDate = DateTime.Now;
 
+        /// <summary>Kolekcja wszystkich portfeli dostępnych w systemie.</summary>
         public ObservableCollection<InvestmentPortfolio> AllPortfolios { get; set; } = [];
 
         private InvestmentPortfolio _selectedPortfolio = null!;
 
+        /// <summary>
+        /// Pobiera lub ustawia imię i nazwisko właściciela wybranego portfela.
+        /// Zawiera logikę walidacji i obsługę wyjątku <see cref="InvalidOwnerException"/>.
+        /// </summary>
         public string PortfolioOwner
         {
             get => SelectedPortfolio?.Owner ?? string.Empty;
@@ -221,6 +303,12 @@ namespace InvestmentPortfolioManager.WPF.MVVM
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>
+        /// Obecnie wybrany i aktywny portfel inwestycyjny.
+        /// Setter odpowiada za bezpieczne zarządzanie subskrypcjami zdarzeń (Events), 
+        /// co zapobiega wyciekom pamięci oraz zapewnia aktualizację podrzędnych widoków.
+        /// </summary>
         public InvestmentPortfolio SelectedPortfolio
         {
             get => _selectedPortfolio;
@@ -256,6 +344,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
         }
 
+        /// <summary>
+        /// Reaguje na zmiany w kolekcji aktywów (dodanie/usunięcie), 
+        /// odpowiednio zarządzając subskrypcjami zdarzeń cenowych.
+        /// </summary>
         private void OnAssetsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
@@ -271,6 +363,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
         }
 
+        /// <summary>
+        /// Obsługuje zdarzenie krytycznego spadku ceny aktywa.
+        /// Wyświetla ostrzeżenie i wstrzymuje symulację w celach bezpieczeństwa.
+        /// </summary>
         private void HandleCriticalDrop(string symbol, double price, string message)
         {
             if (_isSimulationRunning)
@@ -281,26 +377,38 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             MessageBox.Show(message, $"ALERT: {symbol}", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
+        /// <summary>Model widoku dla panelu statystyk.</summary>
         public DashboardViewModel DashboardVM { get; set; } = null!;
+        /// <summary>Model widoku dla zarządzania listą aktywów.</summary>
         public PortfolioViewModel PortfolioVM { get; set; } = null!;
-
+        /// <summary>Aktualnie wybrany widok bindowany do ContentControl w MainWindow.</summary>
         public object CurrentView
         {
             get => _currentView;
             set { _currentView = value; OnPropertyChanged(); }
         }
 
+        /// <summary>Tekst wyświetlany na przycisku symulacji, zależny od jej stanu.</summary>
         public string SimulationButtonText => _isSimulationRunning ? "Stop Simulation" : "Start Simulation";
+        /// <summary>Kolor przycisku symulacji (HEX), zmieniający się w zależności od aktywności.</summary>
         public string SimulationButtonColor => _isSimulationRunning ? "#E74C3C" : "#3498DB";
-
+        /// <summary>Polecenie zmiany widoku głównego.</summary>
         public ICommand SwitchViewCommand { get; }
+        /// <summary>Polecenie zapisu wszystkich portfeli do bazy danych.</summary>
         public ICommand SaveCommand { get; }
+        /// <summary>Polecenie przełączające stan symulacji (Start/Stop).</summary>
         public ICommand ToggleSimulationCommand { get; }
-
+        /// <summary>Polecenie tworzenia nowego, pustego portfela.</summary>
         public ICommand CreatePortfolioCommand { get; }
+        /// <summary>Polecenie klonowania obecnego portfela przy użyciu wzorca Prototype.</summary>
         public ICommand ClonePortfolioCommand { get; }
+        /// <summary>Polecenie usuwania wybranego portfela.</summary>
         public ICommand DeletePortfolioCommand { get; }
 
+        /// <summary>
+        /// Inicjalizuje nową instancję <see cref="MainViewModel"/>.
+        /// Ładuje dane z bazy, konfiguruje startowy portfel oraz inicjalizuje komendy UI.
+        /// </summary>
         public MainViewModel()
         {
             _dataService = new SqlDatabaseService();
@@ -354,12 +462,18 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             ToggleSimulationCommand = new RelayCommand(o => ToggleSimulation());
         }
 
+        /// <summary>
+        /// Konfiguruje parametry timera symulacji.
+        /// </summary>
         private void InitializeSimulation()
         {
             _simulationTimer.Interval = TimeSpan.FromSeconds(5);
             _simulationTimer.Tick += SimulationTimer_Tick;
         }
 
+        /// <summary>
+        /// Uruchamia lub zatrzymuje proces symulacji rynkowej.
+        /// </summary>
         private void ToggleSimulation()
         {
             if (_isSimulationRunning)
@@ -378,6 +492,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             OnPropertyChanged(nameof(SimulationButtonColor));
         }
 
+        /// <summary>
+        /// Metoda wywoływana przy każdym tick'u zegara symulacji.
+        /// Aktualizuje ceny rynkowe i wymusza odświeżenie statystyk w UI.
+        /// </summary>
         private void SimulationTimer_Tick(object? sender, EventArgs? e)
         {
             if (SelectedPortfolio == null) return;
@@ -390,6 +508,11 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             PortfolioVM.RefreshView();
         }
 
+        /// <summary>
+        /// Tworzy nowy, pusty portfel inwestycyjny z domyślnymi parametrami.
+        /// Nowy portfel otrzymuje unikalną nazwę opartą na aktualnej liczbie portfeli
+        /// i zostaje automatycznie ustawiony jako wybrany portfel w aplikacji.
+        /// </summary>
         private void CreatePortfolio()
         {
             var newPortfolio = new InvestmentPortfolio
@@ -402,6 +525,12 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             SelectedPortfolio = newPortfolio;
         }
 
+        /// <summary>
+        /// Tworzy głęboką kopię aktualnie wybranego portfela.
+        /// Wykorzystuje mechanizm klonowania zdefiniowany w klasie <see cref="InvestmentPortfolio"/>.
+        /// Pozwala użytkownikowi na szybkie tworzenie wariantów tego samego portfela 
+        /// do celów porównawczych lub testowych w symulacji.
+        /// </summary>
         private void ClonePortfolio()
         {
             if (SelectedPortfolio == null) return;
@@ -412,6 +541,7 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             SelectedPortfolio = clone;
         }
 
+        /// <summary>Usuwa aktywny portfel i przełącza widok na inny dostępny element.</summary>
         private void DeletePortfolio()
         {
             if (SelectedPortfolio == null) return;

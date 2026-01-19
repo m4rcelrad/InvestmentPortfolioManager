@@ -6,8 +6,18 @@ using System;
 
 namespace InvestmentPortfolioManager.WPF
 {
+    /// <summary>
+    /// Główna klasa aplikacji WPF. 
+    /// Odpowiada za cykl życia programu, inicjalizację bazy danych oraz konfigurację głównego okna.
+    /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// Metoda wywoływana podczas uruchamiania aplikacji.
+        /// Realizuje sekwencję startową: migrację bazy danych, inicjalizację głównego modelu widoku 
+        /// oraz powiązanie go z oknem głównym.
+        /// </summary>
+        /// <param name="e">Argumenty zdarzenia startowego.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

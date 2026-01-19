@@ -10,10 +10,17 @@ using System.Xml.Serialization;
 
 namespace InvestmentPortfolioManager.WPF.MVVM
 {
+    /// <summary>
+    /// Serwis odpowiedzialny za trwałość danych przy wykorzystaniu plików lokalnych.
+    /// Wykorzystuje format XML do serializacji i deserializacji obiektów portfela.
+    /// </summary>
     public class FileDataService : IDataService
     {
         private const string FilePath = "user_portfolios.xml";
 
+        /// <summary>
+        /// Serializuje listę portfeli do pliku XML.
+        /// </summary>
         public void SavePortfolios(List<InvestmentPortfolio> portfolios)
         {
             try
@@ -31,6 +38,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
         }
 
+        /// <summary>
+        /// Wczytuje portfele z pliku XML. Jeśli plik nie istnieje, generuje dane testowe.
+        /// </summary>
+        /// <returns>Lista załadowanych portfeli.</returns>
         public List<InvestmentPortfolio> LoadAllPortfolios()
         {
             if (File.Exists(FilePath))

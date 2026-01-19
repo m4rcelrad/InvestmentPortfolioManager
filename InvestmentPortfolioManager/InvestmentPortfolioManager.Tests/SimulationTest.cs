@@ -5,6 +5,10 @@ using System;
 
 namespace InvestmentPortfolioManager.Tests
 {
+    /// <summary>
+    /// Testy sprawdzające poprawność działania algorytmów symulacji rynkowej.
+    /// Weryfikują, czy zmiany cen mieszczą się w realistycznych granicach.
+    /// </summary>
     [TestClass]
     public class SimulationTests
     {
@@ -16,6 +20,9 @@ namespace InvestmentPortfolioManager.Tests
             _portfolio = new InvestmentPortfolio();
         }
 
+        /// <summary>
+        /// Sprawdza, czy cena obligacji rośnie zgodnie z upływem czasu (model deterministyczny).
+        /// </summary>
         [TestMethod]
         public void UpdateMarketPrices_Bond_ShouldIncreaseDeterministically()
         {
@@ -29,6 +36,10 @@ namespace InvestmentPortfolioManager.Tests
             Assert.AreNotEqual(initialPrice, bond.CurrentPrice);
         }
 
+        /// <summary>
+        /// Test stabilności algorytmu stochastycznego (Ruch Browna).
+        /// Sprawdza, czy po wielu iteracjach cena akcji pozostaje poprawną liczbą dodatnią.
+        /// </summary>
         [TestMethod]
         public void UpdateMarketPrices_Stock_ShouldNotBeNaN_Or_Infinity()
         {

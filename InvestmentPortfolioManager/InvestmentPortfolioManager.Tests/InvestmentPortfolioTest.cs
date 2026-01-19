@@ -7,6 +7,10 @@ using System.Linq;
 
 namespace InvestmentPortfolioManager.Tests
 {
+    /// <summary>
+    /// Testy jednostkowe dla klasy <see cref="InvestmentPortfolio"/>.
+    /// Koncentrują się na zarządzaniu kolekcją aktywów oraz walidacji danych wejściowych portfela.
+    /// </summary>
     [TestClass]
     public class InvestmentPortfolioTests
     {
@@ -18,6 +22,7 @@ namespace InvestmentPortfolioManager.Tests
             _portfolio = new InvestmentPortfolio();
         }
 
+        /// <summary>Weryfikuje, czy dodanie aktywa poprawnie aktualizuje kolekcję wewnętrzną.</summary>
         [TestMethod]
         public void AddNewAsset_ShouldIncreaseAssetCount()
         {
@@ -29,6 +34,7 @@ namespace InvestmentPortfolioManager.Tests
             Assert.IsTrue(_portfolio.Assets.Contains(stock));
         }
 
+        /// <summary>Sprawdza poprawność sumowania wartości rynkowej całego portfela.</summary>
         [TestMethod]
         public void CalculateSum_ShouldReturnTotalValueOfAllAssets()
         {
@@ -40,6 +46,10 @@ namespace InvestmentPortfolioManager.Tests
             Assert.AreEqual(300.0, sum, 0.001);
         }
 
+        /// <summary>
+        /// Testowanie walidacji Regex dla imienia i nazwiska właściciela.
+        /// Wykorzystuje <see cref="DataRowAttribute"/> do sprawdzenia wielu przypadków (poprawnych i błędnych).
+        /// </summary>  
         [TestMethod]
         [DataRow("Jan Kowalski", true)]      
         [DataRow("jan kowalski", false)]     
