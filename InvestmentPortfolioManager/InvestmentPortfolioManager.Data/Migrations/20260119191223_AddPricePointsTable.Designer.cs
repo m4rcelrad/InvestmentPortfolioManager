@@ -4,6 +4,7 @@ using InvestmentPortfolioManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InvestmentPortfolioManager.Data.Migrations
 {
     [DbContext(typeof(InvestmentPortfolioDbContext))]
-    partial class InvestmentPortfolioDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260119191223_AddPricePointsTable")]
+    partial class AddPricePointsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

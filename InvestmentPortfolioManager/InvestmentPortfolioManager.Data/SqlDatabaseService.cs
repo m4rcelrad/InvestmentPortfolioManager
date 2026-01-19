@@ -62,6 +62,15 @@ namespace InvestmentPortfolioManager.Data
                         if (existingAsset != null)
                         {
                             db.Entry(existingAsset).CurrentValues.SetValues(uiAsset);
+
+                            foreach (var point in uiAsset.PriceHistory)
+                            {
+                                if (point.PricePointId == Guid.Empty || !db.PricePoints.Any(p => p.PricePointId == point.PricePointId))
+                                {
+                                    point.AssetId = existingAsset.Asset_id;
+                                    db.PricePoints.Add(point);
+                                }
+                            }
                         }
                         else
                         {
@@ -86,6 +95,7 @@ namespace InvestmentPortfolioManager.Data
 
             var portfolios = db.Portfolios
                 .Include(p => p.Assets)
+                .ThenInclude(a => a.PriceHistory)
                 .ToList();
 
             if (portfolios.Count == 0)

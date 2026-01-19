@@ -17,12 +17,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace InvestmentPortfolioManager.Core.Models
 {
     /// <summary>
-    /// Struktura reprezentująca cenę aktywa w konkretnym punkcie czasu (historia cen).
+    /// Klasa reprezentująca pojedynczy wpis w historii cen aktywa.
+    /// Jest to encja mapowana do bazy danych, przechowująca datę i wartość notowania.
     /// </summary>
-    public struct PricePoint
+    public class PricePoint
     {
+        [Key]
+        public Guid PricePointId { get; set; } = Guid.NewGuid();
+
         public DateTime Date { get; set; }
         public double Price { get; set; }
+
+        public Guid AssetId { get; set; }
+
+        [ForeignKey("AssetId")]
+        public virtual Asset? Asset { get; set; }
+
+        public PricePoint() { }
 
         public PricePoint(DateTime date, double price)
         {
@@ -110,8 +121,7 @@ namespace InvestmentPortfolioManager.Core.Models
             }
         }
 
-
-        [NotMapped] public ObservableCollection<PricePoint> PriceHistory { get; set; } = [];
+        public virtual ObservableCollection<PricePoint> PriceHistory { get; set; } = new();
 
         public string AssetName
         {
@@ -268,5 +278,11 @@ namespace InvestmentPortfolioManager.Core.Models
                 OnCriticalDrop?.Invoke(AssetSymbol, CurrentPrice, "Price fell below threshold!");
             }
         }
+
+        [NotMapped]
+        public double MinPriceHistory => PriceHistory != null && PriceHistory.Count > 0 ? PriceHistory.Min(p => p.Price) : CurrentPrice;
+
+        [NotMapped]
+        public double MaxPriceHistory => PriceHistory != null && PriceHistory.Count > 0 ? PriceHistory.Max(p => p.Price) : CurrentPrice;
     }
 }

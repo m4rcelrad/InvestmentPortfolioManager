@@ -16,6 +16,9 @@ namespace InvestmentPortfolioManager.Data
         /// <summary>Tabela przechowująca wszystkie aktywa (Stocks, Crypto, etc.).</summary>
         public DbSet<Asset> Assets { get; set; }
 
+        /// <summary>Tabela przechowująca historię zmian cen dla wszystkich aktywów.</summary>
+        public DbSet<PricePoint> PricePoints { get; set; }
+
         /// <summary>
         /// Konfiguruje połączenie z bazą danych. 
         /// Domyślnie używa lokalnej instancji SQL Server (LocalDB).

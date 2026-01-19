@@ -141,7 +141,32 @@
 
                 <DataGridTextColumn Header="Purchase Price" Binding="{Binding PurchasePrice, StringFormat=C2}" Width="Auto" MinWidth="120"/>
 
-                <DataGridTextColumn Header="Current Price" Binding="{Binding CurrentPrice, StringFormat=C2}" Width="Auto" MinWidth="120" FontWeight="Bold"/>
+                <DataGridTextColumn Header="Current Price" 
+                    Binding="{Binding CurrentPrice, StringFormat=C2}" 
+                    Width="Auto" MinWidth="120" 
+                    FontWeight="Bold">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                            <Setter Property="ToolTip">
+                                <Setter.Value>
+                                    <ToolTip>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="History Records" FontWeight="Bold" Margin="0,0,0,5" TextDecorations="Underline"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Min: " Foreground="Red"/>
+                                                <TextBlock Text="{Binding MinPriceHistory, StringFormat=C2}" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Max: " Foreground="Green"/>
+                                                <TextBlock Text="{Binding MaxPriceHistory, StringFormat=C2}" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </ToolTip>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
 
                 <DataGridTextColumn Header="Value" Binding="{Binding Value, StringFormat=C2}" Width="Auto" MinWidth="120" Foreground="#2980B9" FontWeight="Bold"/>
 
