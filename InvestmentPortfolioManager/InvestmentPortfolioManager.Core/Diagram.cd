@@ -1,50 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="InvestmentPortfolioManager.Core.Models.Asset" BaseTypeListCollapsed="true">
-    <Position X="9" Y="1" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>QgIAAgAEBAQICAYEoAhAAiAAhFIBCICAEAAhgEAAABA=</HashCode>
-      <FileName>Models\Asset.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.1" />
-  </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.Stock">
-    <Position X="4.5" Y="10" Width="1.5" />
+    <Position X="9.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Assets.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.Bond">
-    <Position X="9" Y="10" Width="1.5" />
+    <Position X="14.25" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>QAIAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Assets.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.Cryptocurrency">
-    <Position X="13.5" Y="10" Width="1.5" />
+    <Position X="18.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Assets.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.RealEstate">
-    <Position X="6.75" Y="10" Width="1.5" />
+    <Position X="12" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAwIAAAAAAAAIAAAACAAAAEIBAgBDAAIAAAAAAAA=</HashCode>
       <FileName>Models\Assets.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.Commodity">
-    <Position X="11.25" Y="10" Width="1.5" />
+    <Position X="16.5" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAgAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Models\Assets.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.InvestmentPortfolio">
-    <Position X="11.5" Y="1" Width="1.5" />
+    <Position X="18" Y="1.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AIAAAACBBEAKgABAAAAAACQAAgCAAQACAAAgAAAAABA=</HashCode>
       <FileName>Models\InvestmentPortfolio.cs</FileName>
@@ -52,26 +44,26 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.LiveAssetSummary">
-    <Position X="13.5" Y="1" Width="1.5" />
+    <Position X="20" Y="1.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAFIAgAAEAAkBBAAAQAAAAAAAAAAAA=</HashCode>
       <FileName>Models\LiveAssetSummary.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="InvestmentPortfolioManager.Core.Comparers.AssetRiskComparer">
-    <Position X="6.25" Y="1" Width="1.5" />
+  <Class Name="InvestmentPortfolioManager.Core.Models.PricePoint">
+    <Position X="16" Y="1.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
-      <FileName>Comparers\AssetRiskComparer.cs</FileName>
+      <HashCode>AAAAAIAAAQAAAAAAAAAAAAAAAgAAAAABAAAgAAAAAAA=</HashCode>
+      <FileName>Models\Asset.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InvestmentPortfolioManager.Core.Models.Asset">
+    <Position X="13.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QgIAAgAEBAQICAYEoghAAiAChFIBCICAEAAhgEAAABA=</HashCode>
+      <FileName>Models\Asset.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="InvestmentPortfolioManager.Core.Services.MarketSimulator">
-    <Position X="6.25" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Services\MarketSimulator.cs</FileName>
-    </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>
