@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36804.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentPortfolioManager.Core", "InvestmentPortfolioManager.Core\InvestmentPortfolioManager.Core.csproj", "{245A17D9-32BB-44F1-A1AF-4B8559C3118F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentPortfolioManager.ConsoleApp", "InvestmentPortfolioManager.ConsoleApp\InvestmentPortfolioManager.ConsoleApp.csproj", "{A9C7F4F6-5A74-43D3-9066-4BCFFA3F2E9B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentPortfolioManager.WPF", "InvestmentPortfolioManager.WPF\InvestmentPortfolioManager.WPF.csproj", "{B4DDF380-2EAF-4881-AE08-5BDED958EE6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentPortfolioManager.Data", "InvestmentPortfolioManager.Data\InvestmentPortfolioManager.Data.csproj", "{F513CBF4-C4BA-4FC8-8981-25412319CFB5}"
@@ -23,10 +21,6 @@ Global
 		{245A17D9-32BB-44F1-A1AF-4B8559C3118F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{245A17D9-32BB-44F1-A1AF-4B8559C3118F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{245A17D9-32BB-44F1-A1AF-4B8559C3118F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9C7F4F6-5A74-43D3-9066-4BCFFA3F2E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9C7F4F6-5A74-43D3-9066-4BCFFA3F2E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9C7F4F6-5A74-43D3-9066-4BCFFA3F2E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9C7F4F6-5A74-43D3-9066-4BCFFA3F2E9B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B4DDF380-2EAF-4881-AE08-5BDED958EE6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4DDF380-2EAF-4881-AE08-5BDED958EE6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4DDF380-2EAF-4881-AE08-5BDED958EE6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
