@@ -36,7 +36,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.InvestmentPortfolio">
-    <Position X="18" Y="1.25" Width="1.5" />
+    <Position X="15.75" Y="1.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AIAAAACBBEAKgABAAAAAACQAAgCAAQACAAAgAAAAABA=</HashCode>
       <FileName>Models\InvestmentPortfolio.cs</FileName>
@@ -44,14 +44,14 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.LiveAssetSummary">
-    <Position X="20" Y="1.25" Width="1.5" />
+    <Position X="17.75" Y="1.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAFIAgAAEAAkBBAAAQAAAAAAAAAAAA=</HashCode>
       <FileName>Models\LiveAssetSummary.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="InvestmentPortfolioManager.Core.Models.PricePoint">
-    <Position X="16" Y="1.25" Width="1.5" />
+    <Position X="11" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAIAAAQAAAAAAAAAAAAAAAgAAAAABAAAgAAAAAAA=</HashCode>
       <FileName>Models\Asset.cs</FileName>
@@ -64,6 +64,13 @@
       <FileName>Models\Asset.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="InvestmentPortfolioManager.Core.Models.MarketEvent">
+    <Position X="11" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAgAEAAAAAAAABAAAAAAgAAAAAAQAAAAAA=</HashCode>
+      <FileName>Models\MarketEvent.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

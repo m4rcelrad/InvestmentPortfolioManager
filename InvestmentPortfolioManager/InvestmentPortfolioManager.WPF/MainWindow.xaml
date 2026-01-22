@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:InvestmentPortfolioManager.WPF.MVVM"
         xmlns:views="clr-namespace:InvestmentPortfolioManager.WPF.Views"
         mc:Ignorable="d"
-        Title="Investment Portfolio Manager" Height="650" Width="1300"
+        Title="Investment Portfolio Manager" Height="700" Width="1300"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -63,6 +63,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="#2C3E50" Padding="20,10">
@@ -192,5 +193,22 @@
         </Border>
 
         <ContentControl Grid.Row="1" Content="{Binding CurrentView}" Margin="0"/>
+
+        <Border Grid.Row="2" Background="#2C3E50" BorderBrush="#34495E" BorderThickness="0,1,0,0" Padding="10,8">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Market news:" 
+                           Foreground="#E74C3C" FontWeight="Bold" FontSize="14" 
+                           VerticalAlignment="Center" Margin="0,0,10,0">
+                    <TextBlock.Effect>
+                        <DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.5"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+
+                <TextBlock Text="{Binding NewsMessage}" 
+                           Foreground="#ECF0F1" FontSize="14" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
     </Grid>
 </Window>

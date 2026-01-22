@@ -466,6 +466,10 @@ namespace InvestmentPortfolioManager.WPF.MVVM
 
             SaveCommand = new RelayCommand(o =>
             {
+                if (_currentEvent != null)
+                {
+                    EndCurrentEvent();
+                }
                 _dataService.SavePortfolios(new List<InvestmentPortfolio>(AllPortfolios));
                 MessageBox.Show("Saved Successfully", "Success");
             });
@@ -516,6 +520,8 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             if (SelectedPortfolio == null) return;
 
             _simulationDate = _simulationDate.AddDays(1);
+
+            ProcessMarketEvents();
 
             SelectedPortfolio.UpdateMarketPrices(_simulationDate);
 
@@ -574,6 +580,162 @@ namespace InvestmentPortfolioManager.WPF.MVVM
             }
 
             AllPortfolios.Remove(toRemove);
+        }
+
+        /// <summary>
+        /// Przechowuje aktualnie trwające zdarzenie rynkowe. Jeśli null, rynek jest w stanie stabilnym.
+        /// </summary>
+        private MarketEvent? _currentEvent;
+
+        /// <summary>
+        /// Liczba cykli symulacji (tików) pozostała do zakończenia obecnego zdarzenia.
+        /// </summary>
+        private int _eventTimeRemaining;
+
+        /// <summary>
+        /// Słownik służący do zapisu oryginalnego stanu aktywów (zmienność i średni zwrot) przed wystąpieniem zdarzenia.
+        /// Kluczem jest identyfikator aktywa (Guid). Pozwala to na przywrócenie parametrów po zakończeniu zdarzenia.
+        /// </summary>
+        private Dictionary<Guid, (double Volatility, double MeanReturn)> _backupState = new();
+
+        /// <summary>
+        /// Prywatne pole przechowujące treść aktualnej wiadomości rynkowej.
+        /// </summary>
+        private string _newsMessage = "Market is stable.";
+
+        /// <summary>
+        /// Publiczna właściwość udostępniająca komunikat o stanie rynku dla widoku (WPF Binding).
+        /// </summary>
+        public string NewsMessage
+        {
+            get => _newsMessage;
+            set { _newsMessage = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Lista predefiniowanych scenariuszy rynkowych, które mogą zostać wylosowane podczas symulacji.
+        /// </summary>
+        private readonly List<MarketEvent> _possibleEvents =
+        [
+            new MarketEvent
+        {
+            Title = "CRYPTO CRASH",
+            Description = "Bitcoin and Altcoins are plunging! Panic in the market.",
+            DurationTicks = 5,
+            TargetPredicate = a => a is Cryptocurrency,
+            VolatilityMultiplier = 3.0,
+            MeanReturnModifier = -0.05
+        },
+        new MarketEvent
+        {
+            Title = "REAL ESTATE BOOM",
+            Description = "Housing prices are rising due to low interest rates.",
+            DurationTicks = 8,
+            TargetPredicate = a => a is RealEstate,
+            VolatilityMultiplier = 1.0,
+            MeanReturnModifier = 0.02
+        },
+        new MarketEvent
+        {
+            Title = "GEOPOLITICAL UNCERTAINTY",
+            Description = "Investors are fleeing to gold. Stocks are unstable.",
+            DurationTicks = 6,
+            TargetPredicate = a => a is Stock || a is Commodity,
+            VolatilityMultiplier = 2.5,
+            MeanReturnModifier = -0.005
+        },
+        new MarketEvent
+        {
+            Title = "MARKET STABILIZATION",
+            Description = "The market is calming down after recent events.",
+            DurationTicks = 3,
+            TargetPredicate = a => true,
+            VolatilityMultiplier = 0.5,
+            MeanReturnModifier = 0.0
+        }
+        ];
+
+        /// <summary>
+        /// Główna metoda zarządzająca cyklem życia zdarzeń rynkowych.
+        /// Wywoływana w każdej turze symulacji. Odpowiada za odliczanie czasu trwania zdarzenia
+        /// lub losowanie nowego zdarzenia, jeśli żadne aktualnie nie występuje.
+        /// </summary>
+        private void ProcessMarketEvents()
+        {
+            if (_currentEvent != null)
+            {
+                _eventTimeRemaining--;
+
+                if (_eventTimeRemaining <= 0)
+                {
+                    EndCurrentEvent();
+                }
+                return;
+            }
+
+            // 10% szansy na wystąpienie nowego zdarzenia w każdej turze
+            if (Random.Shared.NextDouble() < 0.10)
+            {
+                StartRandomEvent();
+            }
+            else
+            {
+                NewsMessage = "Market is stable. No new reports.";
+            }
+        }
+
+        /// <summary>
+        /// Rozpoczyna losowe zdarzenie z listy dostępnych scenariuszy.
+        /// Zapisuje obecny stan aktywów, aplikuje modyfikatory (zmiana zmienności i zwrotu)
+        /// oraz aktualizuje komunikat dla użytkownika.
+        /// </summary>
+        private void StartRandomEvent()
+        {
+            if (SelectedPortfolio == null) return;
+
+            var randomEvent = _possibleEvents[Random.Shared.Next(_possibleEvents.Count)];
+            _currentEvent = randomEvent;
+            _eventTimeRemaining = randomEvent.DurationTicks;
+
+            NewsMessage = $"{randomEvent.Title}: {randomEvent.Description}";
+
+            _backupState.Clear();
+
+            foreach (var asset in SelectedPortfolio.Assets)
+            {
+                // Sprawdzenie, czy zdarzenie dotyczy danego typu aktywa
+                if (randomEvent.TargetPredicate(asset))
+                {
+                    _backupState[asset.Asset_id] = (asset.Volatility, asset.MeanReturn);
+
+                    asset.Volatility *= randomEvent.VolatilityMultiplier;
+                    asset.MeanReturn += randomEvent.MeanReturnModifier;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Kończy aktualnie trwające zdarzenie rynkowe.
+        /// Przywraca oryginalne wartości parametrów (zmienność, średni zwrot) dla wszystkich zmodyfikowanych aktywów
+        /// i czyści stan tymczasowy.
+        /// </summary>
+        private void EndCurrentEvent()
+        {
+            if (SelectedPortfolio == null || _currentEvent == null) return;
+
+            foreach (var asset in SelectedPortfolio.Assets)
+            {
+                if (_backupState.ContainsKey(asset.Asset_id))
+                {
+                    var original = _backupState[asset.Asset_id];
+                    asset.Volatility = original.Volatility;
+                    asset.MeanReturn = original.MeanReturn;
+                }
+            }
+
+            _currentEvent = null;
+            _backupState.Clear();
+            NewsMessage = "Market event ended. Returning to normal.";
         }
     }
 }
